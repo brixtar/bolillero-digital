@@ -1,0 +1,2139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎱 Bolillero Digital Premium</title>
+<!-- Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;700;900&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --bg-main: #0f172a;
+    --card-bg: rgba(30, 41, 59, 0.45);
+    --card-border: rgba(255, 255, 255, 0.08);
+    --text-primary: #f8fafc;
+    --text-muted: #94a3b8;
+    
+    --color-primary: #6366f1; /* Indigo */
+    --color-primary-hover: #4f46e5;
+    --color-success: #10b981; /* Emerald */
+    --color-success-hover: #059669;
+    --color-accent: #f59e0b; /* Amber */
+    --color-accent-hover: #d97706;
+    --color-danger: #f43f5e; /* Rose */
+    --color-danger-hover: #e11d48;
+    
+    --shadow-premium: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  }
+
+  body.light {
+    --bg-main: #f1f5f9;
+    --card-bg: rgba(255, 255, 255, 0.65);
+    --card-border: rgba(15, 23, 42, 0.08);
+    --text-primary: #0f172a;
+    --text-muted: #64748b;
+    
+    --color-primary: #4f46e5;
+    --color-success: #059669;
+    --color-accent: #d97706;
+    --color-danger: #e11d48;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg-main);
+    background-image: radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+                      radial-gradient(at 50% 0%, rgba(244, 63, 94, 0.1) 0px, transparent 50%),
+                      radial-gradient(at 100% 0%, rgba(245, 158, 11, 0.12) 0px, transparent 50%);
+    background-attachment: fixed;
+    color: var(--text-primary);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    min-height: 100vh;
+    transition: background 0.3s, color 0.3s;
+  }
+
+  h1 {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 900;
+    margin-bottom: 5px;
+    background: linear-gradient(90deg, #ff6b6b, #f59e0b, #38bdf8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-size: 2.5rem;
+    letter-spacing: -0.05em;
+    text-align: center;
+  }
+  
+  .sub {
+    color: var(--text-muted);
+    margin-bottom: 20px;
+    font-size: 1rem;
+    font-weight: 400;
+  }
+
+  /* Config button */
+  .config-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    color: var(--text-primary);
+    font-size: 1.3rem;
+    cursor: pointer;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-premium);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  .config-btn:hover {
+    transform: rotate(45deg) scale(1.05);
+    background: var(--color-accent);
+    color: #1e293b;
+    border-color: transparent;
+  }
+
+  /* Drawer */
+  .drawer-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 200;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+  }
+  .drawer-overlay.open {
+    opacity: 1;
+    visibility: visible;
+  }
+  .drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 350px;
+    max-width: 90vw;
+    height: 100%;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-left: 1px solid var(--card-border);
+    z-index: 201;
+    transform: translateX(100%);
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    padding: 25px;
+    overflow-y: auto;
+    color: #f8fafc;
+    box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+  }
+  body.light .drawer {
+    background: rgba(241, 245, 249, 0.9);
+    color: #0f172a;
+  }
+  .drawer.open {
+    transform: translateX(0);
+  }
+  .drawer h3 {
+    font-family: 'Outfit', sans-serif;
+    color: var(--color-accent);
+    margin-bottom: 15px;
+    font-size: 1.25rem;
+    font-weight: 700;
+  }
+  .drawer-section {
+    margin-bottom: 25px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--card-border);
+  }
+  .drawer-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+  .drawer-row label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    min-width: 70px;
+    font-weight: 500;
+  }
+  .drawer-row select, .drawer-row input[type="text"] {
+    flex: 1;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--card-border);
+    background: rgba(255, 255, 255, 0.07);
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    outline: none;
+    transition: border 0.3s;
+  }
+  body.light .drawer-row select, body.light .drawer-row input[type="text"] {
+    background: rgba(15, 23, 42, 0.05);
+  }
+  .drawer-row select:focus, .drawer-row input[type="text"]:focus {
+    border-color: var(--color-primary);
+  }
+  .drawer-row input[type="range"] {
+    flex: 1;
+    accent-color: var(--color-accent);
+    cursor: pointer;
+  }
+  .drawer-row .val {
+    font-size: 0.8rem;
+    color: var(--color-accent);
+    min-width: 35px;
+    text-align: right;
+    font-weight: bold;
+  }
+  .toggle-btn {
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: 1px solid var(--card-border);
+    background: rgba(255, 255, 255, 0.07);
+    color: var(--text-primary);
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+  .toggle-btn.on {
+    background: linear-gradient(135deg, var(--color-success), #00cec9);
+    border-color: transparent;
+    color: white;
+  }
+  .drawer-btn {
+    width: 100%;
+    padding: 11px;
+    border-radius: 10px;
+    border: none;
+    color: #fff;
+    font-weight: bold;
+    cursor: pointer;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .drawer-btn:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.1);
+  }
+  .drawer-btn.green { background: linear-gradient(135deg, var(--color-success), #10b981); }
+  .drawer-btn.blue { background: linear-gradient(135deg, var(--color-primary), #4f46e5); }
+  .drawer-btn.gold { background: linear-gradient(135deg, var(--color-accent), #f59e0b); color: #1e293b; }
+  .drawer-btn.red { background: linear-gradient(135deg, var(--color-danger), #f43f5e); }
+  .drawer-btn.purple { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+  
+  .file-wrap {
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+  }
+  .file-wrap input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  /* Last 5 list */
+  .last {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding: 12px 25px;
+    background: var(--card-bg);
+    border-radius: 40px;
+    border: 1px solid var(--card-border);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow: var(--shadow-premium);
+  }
+  .last div {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.05rem;
+    font-weight: 700;
+    background: rgba(128, 128, 128, 0.15);
+    color: var(--text-muted);
+    border: 2px solid var(--card-border);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  .last div.on {
+    color: #fff;
+    transform: scale(1.12);
+    border-color: transparent;
+  }
+  .last div.on:nth-child(1) { background: linear-gradient(135deg, var(--color-danger), #f43f5e); box-shadow: 0 0 15px rgba(244,63,94,0.45); }
+  .last div.on:nth-child(2) { background: linear-gradient(135deg, var(--color-accent), #f59e0b); box-shadow: 0 0 15px rgba(245,158,11,0.4); }
+  .last div.on:nth-child(3) { background: linear-gradient(135deg, #38bdf8, #0ea5e9); box-shadow: 0 0 15px rgba(56,189,248,0.4); }
+  .last div.on:nth-child(4) { background: linear-gradient(135deg, #ec4899, #db2777); box-shadow: 0 0 15px rgba(236,72,153,0.4); }
+  .last div.on:nth-child(5) { background: linear-gradient(135deg, var(--color-primary), #4f46e5); box-shadow: 0 0 15px rgba(99,102,241,0.4); }
+
+  /* Main Layout Grid */
+  .main-wrap {
+    display: flex;
+    gap: 25px;
+    align-items: flex-start;
+    justify-content: center;
+    width: 100%;
+    max-width: 1200px;
+    margin-bottom: 20px;
+  }
+  
+  .left-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    flex: 1;
+    max-width: 440px;
+  }
+  
+  .right-col {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    flex: 1.3;
+    max-width: 650px;
+  }
+
+  /* Big Glass Ball */
+  .big-ball-outer {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 24px;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: var(--shadow-premium);
+  }
+  
+  .big {
+    width: 230px;
+    height: 230px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--color-danger), #be123c);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 7.5rem;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 900;
+    color: #fff;
+    text-shadow: 0 4px 15px rgba(0,0,0,0.35);
+    box-shadow: 0 0 50px rgba(244,63,94,0.4), inset 0 0 30px rgba(255,255,255,0.25);
+    border: 8px solid rgba(255,255,255,0.18);
+    margin-bottom: 15px;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  .big.empty {
+    background: linear-gradient(135deg, #334155, #1e293b);
+    font-size: 3rem;
+    color: #64748b;
+    box-shadow: 0 0 20px rgba(0,0,0,0.2);
+    text-shadow: none;
+    font-weight: 500;
+  }
+  .big.spin {
+    animation: ballSpin 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .big.reveal {
+    animation: ballReveal 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  
+  @keyframes ballSpin {
+    0% { transform: scale(1) rotate(0deg); filter: blur(0px); }
+    50% { transform: scale(1.08) rotate(360deg); filter: blur(2px); }
+    100% { transform: scale(1) rotate(720deg); filter: blur(0px); }
+  }
+  @keyframes ballReveal {
+    0% { transform: scale(0.3); opacity: 0; }
+    75% { transform: scale(1.12); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  .status {
+    color: var(--color-accent);
+    font-weight: 600;
+    font-size: 1rem;
+    text-align: center;
+    min-height: 24px;
+    font-family: 'Outfit', sans-serif;
+  }
+
+  /* Progress Bar */
+  .prog {
+    width: 100%;
+  }
+  .prog-bar {
+    width: 100%;
+    height: 14px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--card-border);
+  }
+  body.light .prog-bar {
+    background: rgba(15, 23, 42, 0.06);
+  }
+  .prog-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--color-success), #22c55e);
+    border-radius: 10px;
+    transition: width 0.4s ease;
+  }
+  .prog-text {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    margin-top: 6px;
+    font-weight: 500;
+  }
+
+  /* Control buttons */
+  .controls {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 50px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  }
+  .btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+  }
+  .btn:active:not(:disabled) {
+    transform: translateY(0);
+  }
+  .btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+  }
+  .btn-draw {
+    background: linear-gradient(135deg, var(--color-success), #10b981);
+    font-size: 1.15rem;
+    padding: 16px 36px;
+    flex: 1 1 100%;
+    font-family: 'Outfit', sans-serif;
+  }
+  .btn-draw:hover:not(:disabled) {
+    background: linear-gradient(135deg, var(--color-success-hover), #059669);
+  }
+  .btn-pause {
+    background: linear-gradient(135deg, var(--color-accent), #d97706);
+    flex: 1;
+  }
+  .btn-auto {
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+    flex: 1;
+  }
+  .btn-reset {
+    background: linear-gradient(135deg, var(--color-danger), #e11d48);
+    flex: 1;
+  }
+
+  .auto-box {
+    display: none;
+    gap: 12px;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 12px;
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 12px;
+    border: 1px solid var(--card-border);
+  }
+  .auto-box.show {
+    display: flex;
+  }
+  .auto-box label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+  .auto-box input[type="range"] {
+    flex: 1;
+    accent-color: #8b5cf6;
+  }
+  .auto-box .spd {
+    font-size: 0.85rem;
+    color: #c084fc;
+    min-width: 30px;
+    font-weight: bold;
+    text-align: right;
+  }
+
+  /* Grid Panel */
+  .grid-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 24px;
+    padding: 22px;
+    width: 100%;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: var(--shadow-premium);
+  }
+  .grid-title {
+    text-align: center;
+    margin-bottom: 15px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.15rem;
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 5px;
+  }
+  .grid div {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    font-weight: 700;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--card-border);
+    color: var(--text-muted);
+    transition: all 0.25s ease;
+  }
+  body.light .grid div {
+    background: rgba(15, 23, 42, 0.03);
+  }
+  .grid div.called {
+    background: linear-gradient(135deg, var(--color-success), #10b981);
+    color: #fff;
+    border-color: transparent;
+    box-shadow: 0 0 10px rgba(16,185,129,0.35);
+  }
+  .grid div.last-drawn {
+    background: linear-gradient(135deg, var(--color-danger), #f43f5e);
+    color: #fff;
+    border-color: transparent;
+    box-shadow: 0 0 14px rgba(244,63,94,0.55);
+    animation: cellPulse 1.2s infinite;
+  }
+  @keyframes cellPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+  }
+
+  /* Interactive Bingo Card */
+  .bingo-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 24px;
+    padding: 22px;
+    width: 100%;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: var(--shadow-premium);
+  }
+  .bingo-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+  .bingo-card h2 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.2rem;
+    color: var(--color-accent);
+    font-weight: 700;
+  }
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    gap: 6px;
+    background: rgba(0,0,0,0.15);
+    padding: 10px;
+    border-radius: 14px;
+    border: 1px solid var(--card-border);
+  }
+  .card-cell {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--card-border);
+    color: var(--text-primary);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  body.light .card-cell {
+    background: rgba(15, 23, 42, 0.04);
+  }
+  .card-cell.empty {
+    background: rgba(128,128,128,0.05);
+    border-style: dashed;
+    border-color: rgba(255,255,255,0.04);
+  }
+  .card-cell.empty::after {
+    content: "•";
+    color: var(--text-muted);
+    opacity: 0.3;
+  }
+  .card-cell.marked {
+    background: linear-gradient(135deg, var(--color-success), #22c55e);
+    color: #fff;
+    border-color: transparent;
+    box-shadow: 0 0 10px rgba(16,185,129,0.4);
+    animation: matchZoom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  @keyframes matchZoom {
+    0% { transform: scale(0.6); }
+    70% { transform: scale(1.18); }
+    100% { transform: scale(1); }
+  }
+
+  /* History and Stats */
+  .panel {
+    width: 100%;
+    padding: 20px;
+    background: var(--card-bg);
+    border-radius: 20px;
+    border: 1px solid var(--card-border);
+    box-shadow: var(--shadow-premium);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: none;
+    margin-top: 15px;
+  }
+  .panel.show {
+    display: block;
+    animation: slideDown 0.35s ease;
+  }
+  @keyframes slideDown {
+    0% { opacity: 0; transform: translateY(-10px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+  .panel-title {
+    text-align: center;
+    color: var(--color-accent);
+    margin-bottom: 12px;
+    font-weight: 700;
+    font-family: 'Outfit', sans-serif;
+  }
+  .hist-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: center;
+    max-height: 120px;
+    overflow-y: auto;
+    padding: 5px;
+  }
+  .hist-item {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--color-primary), #4f46e5);
+    color: #fff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 10px;
+  }
+  .stat-card {
+    background: rgba(0, 0, 0, 0.15);
+    padding: 12px;
+    border-radius: 12px;
+    text-align: center;
+    border: 1px solid var(--card-border);
+  }
+  .stat-card .val {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--color-accent);
+    font-family: 'Outfit', sans-serif;
+  }
+  .stat-card .lbl {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 4px;
+    font-weight: 500;
+  }
+
+  /* Modal Dialog */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+  }
+  .modal-overlay.show {
+    opacity: 1;
+    visibility: visible;
+  }
+  .modal-box {
+    background: linear-gradient(135deg, #1e293b, #0f172a);
+    padding: 40px;
+    border-radius: 28px;
+    text-align: center;
+    border: 2px solid var(--color-accent);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 30px rgba(245, 158, 11, 0.25);
+    max-width: 450px;
+    width: 90%;
+    transform: scale(0.85);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .modal-overlay.show .modal-box {
+    transform: scale(1);
+  }
+  .modal-box h2 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 2.2rem;
+    margin-bottom: 12px;
+    background: linear-gradient(90deg, var(--color-accent), #f59e0b, #ff6b6b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .modal-box p {
+    font-size: 1.05rem;
+    color: #cbd5e1;
+    margin-bottom: 25px;
+    line-height: 1.5;
+  }
+  .modal-box .icon {
+    font-size: 4rem;
+    margin-bottom: 15px;
+    filter: drop-shadow(0 4px 10px rgba(0,0,0,0.3));
+  }
+  .btn-close {
+    background: linear-gradient(135deg, var(--color-success), #10b981);
+    padding: 12px 36px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 50px;
+    color: #fff;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  }
+  .btn-close:hover {
+    filter: brightness(1.1);
+  }
+
+  /* Confetti overlay */
+  .confetti {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 999;
+    overflow: hidden;
+  }
+  .confetti-piece {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    animation: confettiFall 3.2s ease-out forwards;
+  }
+  @keyframes confettiFall {
+    0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* Recovery Prompt Toast */
+  .toast {
+    position: fixed;
+    bottom: 25px;
+    left: 25px;
+    background: rgba(30, 41, 59, 0.95);
+    border: 1px solid var(--color-primary);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    z-index: 500;
+    max-width: 320px;
+    display: none;
+    animation: toastUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  @keyframes toastUp {
+    0% { transform: translateY(50px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+  }
+  .toast-title {
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--color-accent);
+    font-size: 0.95rem;
+  }
+  .toast-body {
+    font-size: 0.8rem;
+    color: #cbd5e1;
+    margin-bottom: 12px;
+    line-height: 1.4;
+  }
+  .toast-btns {
+    display: flex;
+    gap: 8px;
+  }
+  .toast-btn {
+    padding: 6px 12px;
+    font-size: 0.75rem;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .toast-btn.confirm {
+    background: var(--color-primary);
+    color: white;
+  }
+  .toast-btn.cancel {
+    background: rgba(255,255,255,0.08);
+    color: var(--text-primary);
+  }
+
+  @media (max-width: 900px) {
+    .main-wrap {
+      flex-direction: column;
+      align-items: center;
+    }
+    .left-col, .right-col {
+      width: 100%;
+      max-width: 500px;
+    }
+    .big {
+      width: 180px;
+      height: 180px;
+      font-size: 6rem;
+    }
+    h1 {
+      font-size: 2rem;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .grid {
+      gap: 3px;
+    }
+    .grid div {
+      font-size: 0.75rem;
+      border-radius: 4px;
+    }
+    .card-grid {
+      gap: 3px;
+      padding: 6px;
+    }
+    .card-cell {
+      font-size: 0.8rem;
+      border-radius: 5px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<button class="config-btn" onclick="toggleDrawer()" title="Configuración">⚙️</button>
+
+<div class="drawer-overlay" id="drawerOverlay" onclick="toggleDrawer()"></div>
+<div class="drawer" id="drawer">
+  <h3>⚙️ Configuración</h3>
+
+  <div class="drawer-section">
+    <h3>🎙️ Configuración de Voz</h3>
+    <div class="drawer-row">
+      <button class="toggle-btn on" id="voiceToggle" onclick="toggleVoice()">🔊 Voz ON</button>
+    </div>
+    <div class="drawer-row">
+      <label for="voiceSelect">Selector de Voz</label>
+      <select id="voiceSelect" onchange="selectVoice()"></select>
+    </div>
+    <div class="drawer-row">
+      <label for="voiceRate">Velocidad</label>
+      <input type="range" id="voiceRate" min="0.5" max="1.6" step="0.1" value="1.0" oninput="updateVoiceSettings()">
+      <span class="val" id="rateVal">1.0</span>
+    </div>
+    <div class="drawer-row">
+      <label for="voicePitch">Tono</label>
+      <input type="range" id="voicePitch" min="0.5" max="1.8" step="0.1" value="1.1" oninput="updateVoiceSettings()">
+      <span class="val" id="pitchVal">1.1</span>
+    </div>
+    <div class="drawer-row">
+      <label for="voiceStyle">Modo Canto</label>
+      <select id="voiceStyle" onchange="vStyle=this.value; saveToLocalStorage();">
+        <option value="dramatic">Dramático (¡Y el número es...!)</option>
+        <option value="bingo">Bingo Cantado (Con rima)</option>
+        <option value="simple" selected>Simple (Solo el número)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="drawer-section">
+    <h3>🎨 Apariencia</h3>
+    <div class="drawer-row">
+      <button class="toggle-btn" id="themeBtn" onclick="toggleTheme()">🌓 Tema claro</button>
+      <div class="file-wrap">
+        <button class="toggle-btn">🖼️ Fondo</button>
+        <input type="file" accept="image/*" onchange="changeBg(event)">
+      </div>
+    </div>
+  </div>
+
+  <div class="drawer-section">
+    <h3>👤 Jugador</h3>
+    <div class="drawer-row">
+      <label for="playerName">Nombre</label>
+      <input type="text" id="playerName" placeholder="Tu nombre" oninput="saveToLocalStorage()">
+    </div>
+  </div>
+
+  <div class="drawer-section">
+    <h3>🛠️ Herramientas</h3>
+    <button class="drawer-btn green" onclick="toggleHistory();toggleDrawer()">📜 Historial</button>
+    <button class="drawer-btn blue" onclick="toggleStats();toggleDrawer()">📊 Estadísticas</button>
+    <button class="drawer-btn gold" onclick="exportGame();toggleDrawer()">📤 Exportar Partida</button>
+    <button class="drawer-btn purple" onclick="openGiant();toggleDrawer()">📺 Pantalla Gigante</button>
+  </div>
+</div>
+
+<h1>🎱 Bolillero Digital</h1>
+<p class="sub">Números del 00 al 99</p>
+
+<!-- Últimas 5 bolillas -->
+<div class="last" id="lastBar">
+  <div id="l1">-</div>
+  <div id="l2">-</div>
+  <div id="l3">-</div>
+  <div id="l4">-</div>
+  <div id="l5">-</div>
+</div>
+
+<div class="main-wrap">
+  <!-- Columna Izquierda: Bolilla principal y botones -->
+  <div class="left-col">
+    <div class="big-ball-outer">
+      <div class="big empty" id="bigNum">?</div>
+      <p class="status" id="status">Presiona "Sacar Bolilla" para comenzar</p>
+      
+      <div class="prog" style="margin-top: 15px;">
+        <div class="prog-bar"><div class="prog-fill" id="progFill"></div></div>
+        <p class="prog-text" id="progText">0 / 100 bolillas</p>
+      </div>
+    </div>
+    
+    <div class="controls">
+      <button class="btn btn-draw" id="btnDraw" onclick="draw()">🎲 Sacar Bolilla</button>
+      <button class="btn btn-auto" id="btnAuto" onclick="toggleAuto()">▶️ Auto</button>
+      <button class="btn btn-pause" id="btnPause" onclick="togglePause()">⏸️ Pausar</button>
+      <button class="btn btn-reset" onclick="reset()">🔄 Reiniciar</button>
+    </div>
+    
+    <div class="auto-box" id="autoBox">
+      <label for="autoSpeed">Intervalo:</label>
+      <input type="range" id="autoSpeed" min="1.5" max="8" step="0.5" value="3.5" oninput="updateAutoSpeed()">
+      <span class="spd" id="spdVal">3.5s</span>
+    </div>
+  </div>
+
+  <!-- Columna Derecha: Grilla del bolillero y Cartón de Bingo -->
+  <div class="right-col">
+    <!-- Panel del Cartón de Bingo -->
+    <div class="bingo-card">
+      <div class="bingo-card-header">
+        <h2>🎯 Tu Cartón de Bingo (Auto-jugable)</h2>
+        <button class="toggle-btn" id="btnGenCard" onclick="generateNewCardAction()">🔄 Generar Nuevo</button>
+      </div>
+      <div class="card-grid" id="cardGrid">
+        <!-- Renderizado dinámico -->
+      </div>
+    </div>
+
+    <!-- Panel de la Grilla Completa -->
+    <div class="grid-card">
+      <div class="grid-title">📋 Tablero General</div>
+      <div class="grid" id="grid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Historial -->
+<div class="panel" id="histPanel">
+  <p class="panel-title">📜 Historial de bolillas en orden de salida</p>
+  <div class="hist-list" id="histList"></div>
+</div>
+
+<!-- Estadísticas -->
+<div class="panel" id="statsPanel">
+  <p class="panel-title">📊 Estadísticas de la partida</p>
+  <div class="stats-grid" id="statsGrid"></div>
+</div>
+
+<!-- Modal para Premios -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-box">
+    <div class="icon" id="modIcon">🎉</div>
+    <h2 id="modTitle">¡Felicidades!</h2>
+    <p id="modMsg">¡Has completado una línea!</p>
+    <button class="btn-close" onclick="closeModal()">¡Excelente!</button>
+  </div>
+</div>
+
+<!-- Toast para recuperar partida -->
+<div class="toast" id="recoveryToast">
+  <div class="toast-title">💾 Partida Guardada Detectada</div>
+  <div class="toast-body">Se encontró una sesión anterior sin finalizar. ¿Deseas recuperarla y reanudar el juego?</div>
+  <div class="toast-btns">
+    <button class="toast-btn confirm" onclick="restoreSavedGame()">Reanudar</button>
+    <button class="toast-btn cancel" onclick="discardSavedGame()">Descartar</button>
+  </div>
+</div>
+
+<div class="confetti" id="confetti"></div>
+
+<script>
+// ===================== STATE =====================
+var called = [];
+var lastFive = [];
+var isPaused = false;
+var isDrawing = false;
+var voiceOn = true;
+var vRate = 1.0;
+var vPitch = 1.1;
+var vStyle = 'simple';
+var selectedVoiceName = '';
+var histVis = false;
+var statsVis = false;
+var startTime = null;
+var giantWin = null;
+var isLight = false;
+var autoInt = null;
+var autoSpd = 3.5;
+var actx = null;
+
+// Bingo Card State
+var playerCard = null; // Grilla 3x9 de { number: X, marked: false } o null
+var isLineWon = false;
+var isBingoWon = false;
+
+// List of system voices
+var systemVoices = [];
+
+// ===================== INITIALIZATION =====================
+function init() {
+  createGrid();
+  loadVoices();
+  
+  // Registrar evento por si cambian las voces después (Chrome)
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+  }
+  
+  // Crear un cartón inicial si no se encuentra nada en LocalStorage
+  if (!checkSavedGameExists()) {
+    generateNewCard();
+    startTime = Date.now();
+    updateDisplay();
+  } else {
+    showRecoveryToast();
+  }
+  
+  // Teclado
+  document.addEventListener('keydown', function(e) {
+    if (e.code === 'Space' && !isDrawing && !isPaused && called.length < 100 && !autoInt) {
+      e.preventDefault();
+      draw();
+    }
+  });
+}
+
+function createGrid() {
+  var g = document.getElementById('grid');
+  g.innerHTML = '';
+  for (var i = 0; i < 100; i++) {
+    var d = document.createElement('div');
+    d.id = 'c' + i;
+    d.textContent = String(i).padStart(2, '0');
+    g.appendChild(d);
+  }
+}
+
+// ===================== VOICES SYSTEM =====================
+function loadVoices() {
+  if (!('speechSynthesis' in window)) return;
+  systemVoices = window.speechSynthesis.getVoices();
+  var select = document.getElementById('voiceSelect');
+  if (!select) return;
+  
+  // Limpiar selector
+  select.innerHTML = '';
+  
+  // Filtrar voces en español (es) prioritariamente, luego inglés como fallback
+  var esVoices = systemVoices.filter(v => v.lang.startsWith('es'));
+  var otherVoices = systemVoices.filter(v => !v.lang.startsWith('es'));
+  
+  var activeVoices = esVoices.length > 0 ? esVoices : otherVoices;
+  
+  activeVoices.forEach((voice, index) => {
+    var opt = document.createElement('option');
+    opt.value = voice.name;
+    opt.textContent = voice.name + ' (' + voice.lang + ')';
+    if (voice.name === selectedVoiceName) {
+      opt.selected = true;
+    }
+    select.appendChild(opt);
+  });
+  
+  // Si no hay voz seleccionada por defecto, usar la primera del sistema
+  if (!selectedVoiceName && activeVoices.length > 0) {
+    selectedVoiceName = activeVoices[0].name;
+  }
+}
+
+function selectVoice() {
+  var select = document.getElementById('voiceSelect');
+  selectedVoiceName = select.value;
+  saveToLocalStorage();
+}
+
+function toggleVoice() {
+  voiceOn = !voiceOn;
+  var b = document.getElementById('voiceToggle');
+  b.classList.toggle('on', voiceOn);
+  b.textContent = voiceOn ? '🔊 Voz ON' : '🔇 Voz OFF';
+  showStatus(voiceOn ? '🔊 Voz activada' : '🔇 Voz silenciada');
+  saveToLocalStorage();
+}
+
+function updateVoiceSettings() {
+  vRate = parseFloat(document.getElementById('voiceRate').value);
+  vPitch = parseFloat(document.getElementById('voicePitch').value);
+  document.getElementById('rateVal').textContent = vRate.toFixed(1);
+  document.getElementById('pitchVal').textContent = vPitch.toFixed(1);
+  saveToLocalStorage();
+}
+
+function speak(n) {
+  if (!voiceOn || !('speechSynthesis' in window)) return;
+  try {
+    window.speechSynthesis.cancel();
+    var u = new SpeechSynthesisUtterance(callText(n));
+    
+    if (systemVoices.length === 0) {
+      systemVoices = window.speechSynthesis.getVoices();
+    }
+    
+    var v = systemVoices.find(x => x.name === selectedVoiceName);
+    if (!v) v = systemVoices.find(x => x.lang.startsWith('es'));
+    
+    if (v) u.voice = v;
+    u.lang = v ? v.lang : 'es-ES';
+    u.rate = vRate;
+    u.pitch = vPitch;
+    u.volume = 1;
+    window.speechSynthesis.speak(u);
+  } catch (e) {
+    console.error("Error en síntesis de voz:", e);
+  }
+}
+
+function callText(n) {
+  var s = String(n).padStart(2, '0');
+  if (vStyle === 'simple') return s;
+  if (vStyle === 'bingo') return bingoPoem(n);
+  var arr = ['¡Número...', '¡Sale el...', '¡Atención...', '¡La suerte trae al...', '¡Apúntenle al...'];
+  return arr[Math.floor(Math.random() * arr.length)] + ' ' + s + '! ' + s + '!';
+}
+
+function bingoPoem(n) {
+  var s = String(n).padStart(2, '0');
+  var poems = {
+    0: 'El cero, la rosca',
+    1: 'El uno, el primero de la lista',
+    2: 'El dos, el patito del agua',
+    3: 'El tres, la colita del chancho',
+    4: 'El cuatro, la mesa',
+    5: 'El cinco, la mano de gloria',
+    6: 'El seis, el perrito de juguete',
+    7: 'El siete, la pipa torcida',
+    8: 'El ocho, los anteojos',
+    9: 'El nueve, el flequillo largo'
+  };
+  if (n === 77) return '¡Setenta y siete, las dos piernitas! ' + s + '!';
+  if (poems[n % 10]) return poems[n % 10] + '! ' + s + '!';
+  return '¡El ' + s + '! ' + s + '!';
+}
+
+// ===================== AUDIO EFFECTS =====================
+function getAudioCtx() {
+  if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
+  return actx;
+}
+
+function playDrum() {
+  try {
+    var c = getAudioCtx();
+    if (c.state === 'suspended') c.resume();
+    var t0 = c.currentTime;
+    for (var i = 0; i < 6; i++) {
+      var o = c.createOscillator();
+      var g = c.createGain();
+      o.connect(g);
+      g.connect(c.destination);
+      o.type = 'triangle';
+      var t = t0 + i * 0.12;
+      o.frequency.setValueAtTime(90 - (i * 8), t);
+      g.gain.setValueAtTime(0.1, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.09);
+      o.start(t);
+      o.stop(t + 0.1);
+    }
+  } catch (e) {}
+}
+
+function playBell() {
+  try {
+    var c = getAudioCtx();
+    if (c.state === 'suspended') c.resume();
+    var t = c.currentTime;
+    var o = c.createOscillator();
+    var g = c.createGain();
+    o.connect(g);
+    g.connect(c.destination);
+    o.type = 'sine';
+    o.frequency.setValueAtTime(1047, t); // C6
+    g.gain.setValueAtTime(0.2, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 1.2);
+    o.start(t);
+    o.stop(t + 1.2);
+  } catch (e) {}
+}
+
+function playMatchSound() {
+  try {
+    var c = getAudioCtx();
+    if (c.state === 'suspended') c.resume();
+    var t0 = c.currentTime;
+    // Un arpegio rápido de dos notas alegres
+    var notes = [523.25, 783.99]; // C5 y G5
+    notes.forEach((freq, idx) => {
+      var o = c.createOscillator();
+      var g = c.createGain();
+      o.connect(g);
+      g.connect(c.destination);
+      o.type = 'sine';
+      var t = t0 + idx * 0.08;
+      o.frequency.setValueAtTime(freq, t);
+      g.gain.setValueAtTime(0.15, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
+      o.start(t);
+      o.stop(t + 0.25);
+    });
+  } catch (e) {}
+}
+
+function playWinTune() {
+  try {
+    var c = getAudioCtx();
+    if (c.state === 'suspended') c.resume();
+    var notes = [523.25, 659.25, 783.99, 1046.50, 1318.51, 1567.98]; // C5, E5, G5, C6, E6, G6
+    var t0 = c.currentTime;
+    for (var i = 0; i < notes.length; i++) {
+      var o = c.createOscillator();
+      var g = c.createGain();
+      o.connect(g);
+      g.connect(c.destination);
+      o.type = 'sine';
+      var t = t0 + i * 0.15;
+      o.frequency.setValueAtTime(notes[i], t);
+      g.gain.setValueAtTime(0.18, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
+      o.start(t);
+      o.stop(t + 0.4);
+    }
+  } catch (e) {}
+}
+
+// ===================== BINGO CARD LOGIC =====================
+function generateNewCardAction() {
+  if (called.length > 0) {
+    if (!confirm("Hay una partida en curso. ¿Deseas borrar tu cartón actual y generar uno nuevo?")) return;
+  }
+  generateNewCard();
+  updateDisplay();
+  showStatus("🎯 Nuevo cartón generado");
+}
+
+function generateNewCard() {
+  // A standard 3x9 Bingo card generator
+  // 15 numbers total: 5 per row, at least 1 per column, max 3 per column.
+  let success = false;
+  let attempts = 0;
+  let colCounts;
+  
+  while (!success && attempts < 2000) {
+    attempts++;
+    colCounts = Array(9).fill(1); // Mínimo 1 por columna
+    let extra = 6; // Necesitamos llegar a 15 números
+    while (extra > 0) {
+      let c = Math.floor(Math.random() * 9);
+      if (colCounts[c] < 3) {
+        colCounts[c]++;
+        extra--;
+      }
+    }
+    
+    // Armar matriz de posiciones temporales
+    let tempCard = Array(3).fill(null).map(() => Array(9).fill(null));
+    let rowCounts = [0, 0, 0];
+    let possible = true;
+    
+    // Intentar distribuir los números por columna en las filas
+    for (let c = 0; c < 9; c++) {
+      let count = colCounts[c];
+      let rowIndices = [0, 1, 2];
+      rowIndices.sort(() => Math.random() - 0.5);
+      
+      let placed = 0;
+      for (let r of rowIndices) {
+        if (placed < count && rowCounts[r] < 5) {
+          tempCard[r][c] = -1; // Marcado temporal
+          rowCounts[r]++;
+          placed++;
+        }
+      }
+      if (placed < count) {
+        possible = false;
+        break;
+      }
+    }
+    
+    // Verificar si se colocaron exactamente 5 por fila y 15 en total
+    if (possible && rowCounts[0] === 5 && rowCounts[1] === 5 && rowCounts[2] === 5) {
+      playerCard = tempCard;
+      success = true;
+    }
+  }
+  
+  if (!success) {
+    // Fallback básico en caso de fallo matemático
+    playerCard = Array(3).fill(null).map(() => Array(9).fill(null));
+    for (let r = 0; r < 3; r++) {
+      for (let c = 0; c < 5; c++) {
+        playerCard[r][c] = -1;
+      }
+    }
+  }
+
+  // Rellenar las celdas marcadas (-1) con números aleatorios únicos y ordenados por columna
+  for (let c = 0; c < 9; c++) {
+    let min = c === 0 ? 1 : c * 10;
+    let max = c === 8 ? 90 : c * 10 + 9;
+    let pool = [];
+    for (let v = min; v <= max; v++) pool.push(v);
+    
+    // Mezclar el pool
+    pool.sort(() => Math.random() - 0.5);
+    
+    // Buscar qué filas tienen asignada esta columna
+    let rowsWithNum = [];
+    for (let r = 0; r < 3; r++) {
+      if (playerCard[r][c] === -1) rowsWithNum.push(r);
+    }
+    
+    // Seleccionar y ordenar números para esta columna
+    let selected = pool.slice(0, rowsWithNum.length).sort((a, b) => a - b);
+    for (let i = 0; i < rowsWithNum.length; i++) {
+      playerCard[rowsWithNum[i]][c] = { number: selected[i], marked: false };
+    }
+  }
+  
+  isLineWon = false;
+  isBingoWon = false;
+  saveToLocalStorage();
+}
+
+function renderBingoCard() {
+  var gridEl = document.getElementById('cardGrid');
+  gridEl.innerHTML = '';
+  
+  if (!playerCard) return;
+  
+  for (let r = 0; r < 3; r++) {
+    for (let c = 0; c < 9; c++) {
+      var cellEl = document.createElement('div');
+      var cellData = playerCard[r][c];
+      
+      if (cellData === null) {
+        cellEl.className = 'card-cell empty';
+      } else {
+        cellEl.className = 'card-cell';
+        cellEl.textContent = String(cellData.number).padStart(2, '0');
+        if (cellData.marked) {
+          cellEl.classList.add('marked');
+        }
+      }
+      gridEl.appendChild(cellEl);
+    }
+  }
+}
+
+// Comprueba si un número recién cantado está en el cartón del jugador
+function checkCardMatch(n) {
+  if (!playerCard) return;
+  
+  let matchFound = false;
+  for (let r = 0; r < 3; r++) {
+    for (let c = 0; c < 9; c++) {
+      let cell = playerCard[r][c];
+      if (cell !== null && cell.number === n) {
+        cell.marked = true;
+        matchFound = true;
+      }
+    }
+  }
+  
+  if (matchFound) {
+    playMatchSound();
+    renderBingoCard();
+    
+    // Verificar si hay línea (si no ha ganado línea aún)
+    if (!isLineWon) {
+      checkLineWin();
+    }
+    // Verificar si hay bingo
+    if (!isBingoWon) {
+      checkBingoWin();
+    }
+  }
+}
+
+function checkLineWin() {
+  for (let r = 0; r < 3; r++) {
+    let lineComplete = true;
+    let numbersInRow = 0;
+    for (let c = 0; c < 9; c++) {
+      let cell = playerCard[r][c];
+      if (cell !== null) {
+        numbersInRow++;
+        if (!cell.marked) {
+          lineComplete = false;
+        }
+      }
+    }
+    if (numbersInRow > 0 && lineComplete) {
+      isLineWon = true;
+      playBell();
+      setTimeout(function() {
+        var pName = document.getElementById('playerName').value.trim();
+        var msg = pName ? '¡' + pName + ' completó su línea!' : '¡Completaste tu línea en el cartón!';
+        showCongrats("🎉 ¡LÍNEA!", msg, false);
+      }, 500);
+      saveToLocalStorage();
+      break;
+    }
+  }
+}
+
+function checkBingoWin() {
+  let cardComplete = true;
+  let totalNumbers = 0;
+  for (let r = 0; r < 3; r++) {
+    for (let c = 0; c < 9; c++) {
+      let cell = playerCard[r][c];
+      if (cell !== null) {
+        totalNumbers++;
+        if (!cell.marked) {
+          cardComplete = false;
+        }
+      }
+    }
+  }
+  
+  if (totalNumbers > 0 && cardComplete) {
+    isBingoWon = true;
+    playWinTune();
+    setTimeout(function() {
+      var pName = document.getElementById('playerName').value.trim();
+      var msg = pName ? '¡' + pName + ' completó el cartón de Bingo!' : '¡Completaste todos los números del cartón!';
+      showCongrats("🏆 ¡BINGO / CARTÓN LLENO!", msg, true);
+    }, 500);
+    saveToLocalStorage();
+  }
+}
+
+// ===================== DRAWER =====================
+function toggleDrawer() {
+  var d = document.getElementById('drawer');
+  var o = document.getElementById('drawerOverlay');
+  var open = !d.classList.contains('open');
+  d.classList.toggle('open', open);
+  o.classList.toggle('open', open);
+}
+
+function toggleTheme() {
+  isLight = !isLight;
+  document.body.classList.toggle('light', isLight);
+  document.getElementById('themeBtn').textContent = isLight ? '🌓 Tema oscuro' : '🌓 Tema claro';
+  saveToLocalStorage();
+}
+
+function changeBg(e) {
+  var f = e.target.files[0];
+  if (!f) return;
+  var u = URL.createObjectURL(f);
+  document.body.style.backgroundImage = 'url(' + u + ')';
+  document.body.style.backgroundSize = 'cover';
+  document.body.style.backgroundPosition = 'center';
+  showStatus('🖼️ Fondo aplicado');
+}
+
+// ===================== DRAWING LOGIC =====================
+function draw() {
+  if (isPaused || isDrawing || called.length >= 100) {
+    if (called.length >= 100) showStatus('¡Todas las bolillas salieron!');
+    return;
+  }
+  isDrawing = true;
+  document.getElementById('btnDraw').disabled = true;
+  var big = document.getElementById('bigNum');
+  big.className = 'big spin';
+  showStatus('🎲 Revolviendo bolillero...');
+  playDrum();
+  if (navigator.vibrate) navigator.vibrate(30);
+
+  var cnt = 0;
+  var interval = setInterval(function() {
+    big.textContent = String(Math.floor(Math.random() * 100)).padStart(2, '0');
+    cnt++;
+    if (cnt > 10) {
+      clearInterval(interval);
+      finalizeDraw();
+    }
+  }, 75);
+}
+
+function finalizeDraw() {
+  var avail = [];
+  for (var i = 0; i < 100; i++) {
+    if (called.indexOf(i) === -1) avail.push(i);
+  }
+  if (avail.length === 0) {
+    isDrawing = false;
+    document.getElementById('btnDraw').disabled = false;
+    return;
+  }
+  var drawn = avail[Math.floor(Math.random() * avail.length)];
+  called.push(drawn);
+  lastFive.unshift(drawn);
+  if (lastFive.length > 5) lastFive.pop();
+
+  var big = document.getElementById('bigNum');
+  big.className = 'big reveal';
+  big.textContent = String(drawn).padStart(2, '0');
+
+  // Actualizar UI
+  updateDisplay();
+  showStatus('¡Salió el ' + String(drawn).padStart(2, '0') + '!');
+  speak(drawn);
+  if (navigator.vibrate) navigator.vibrate(60);
+  
+  // Sincronizar pantalla gigante
+  broadcast();
+  
+  // Auto-marcado de cartón
+  checkCardMatch(drawn);
+  
+  saveToLocalStorage();
+
+  isDrawing = false;
+  document.getElementById('btnDraw').disabled = false;
+}
+
+function updateDisplay() {
+  // Grilla Tablero General
+  var all = document.querySelectorAll('.grid div');
+  for (var i = 0; i < all.length; i++) {
+    all[i].className = '';
+  }
+  for (var i = 0; i < called.length; i++) {
+    var el = document.getElementById('c' + called[i]);
+    if (el) {
+      el.className = 'called';
+      if (i === called.length - 1) el.className = 'last-drawn';
+    }
+  }
+  // Últimas 5
+  for (var i = 1; i <= 5; i++) {
+    var el = document.getElementById('l' + i);
+    if (i <= lastFive.length) {
+      el.textContent = String(lastFive[i - 1]).padStart(2, '0');
+      el.classList.add('on');
+    } else {
+      el.textContent = '-';
+      el.classList.remove('on');
+    }
+  }
+  // Progreso
+  var pct = (called.length / 100) * 100;
+  document.getElementById('progFill').style.width = pct + '%';
+  document.getElementById('progText').textContent = called.length + ' / 100 bolillas';
+  
+  // Renderizar Cartón
+  renderBingoCard();
+}
+
+// ===================== AUTO PLAY =====================
+function toggleAuto() {
+  var b = document.getElementById('btnAuto');
+  if (autoInt) {
+    clearInterval(autoInt);
+    autoInt = null;
+    b.textContent = '▶️ Auto';
+    document.getElementById('autoBox').classList.remove('show');
+    showStatus('Modo automático detenido');
+  } else {
+    document.getElementById('autoBox').classList.add('show');
+    b.textContent = '⏹️ Detener';
+    startAuto();
+  }
+}
+
+function startAuto() {
+  if (autoInt) clearInterval(autoInt);
+  autoInt = setInterval(function() {
+    if (!isPaused && !isDrawing && called.length < 100) draw();
+    else if (called.length >= 100) toggleAuto();
+  }, autoSpd * 1000);
+  showStatus('Modo Auto activo: cada ' + autoSpd + 's');
+}
+
+function updateAutoSpeed() {
+  autoSpd = parseFloat(document.getElementById('autoSpeed').value);
+  document.getElementById('spdVal').textContent = autoSpd + 's';
+  if (autoInt) startAuto();
+}
+
+// ===================== PAUSE & RESET =====================
+function togglePause() {
+  isPaused = !isPaused;
+  var btn = document.getElementById('btnPause');
+  btn.textContent = isPaused ? '▶️ Reanudar' : '⏸️ Pausar';
+  showStatus(isPaused ? '⏸️ Juego en pausa' : '▶️ Juego reanudado');
+  saveToLocalStorage();
+}
+
+function reset() {
+  if (!confirm('¿Seguro que deseas reiniciar el sorteo? Esto vaciará las bolillas del tablero.')) return;
+  called = [];
+  lastFive = [];
+  isPaused = false;
+  isDrawing = false;
+  if (autoInt) {
+    clearInterval(autoInt);
+    autoInt = null;
+    document.getElementById('btnAuto').textContent = '▶️ Auto';
+    document.getElementById('autoBox').classList.remove('show');
+  }
+  document.getElementById('bigNum').textContent = '?';
+  document.getElementById('bigNum').className = 'big empty';
+  document.getElementById('btnDraw').disabled = false;
+  document.getElementById('btnPause').textContent = '⏸️ Pausar';
+  
+  // Limpiar marcas del cartón
+  if (playerCard) {
+    for (let r = 0; r < 3; r++) {
+      for (let c = 0; c < 9; c++) {
+        if (playerCard[r][c] !== null) {
+          playerCard[r][c].marked = false;
+        }
+      }
+    }
+  }
+  isLineWon = false;
+  isBingoWon = false;
+  
+  showStatus('Presiona "Sacar Bolilla" para comenzar');
+  updateDisplay();
+  startTime = Date.now();
+  
+  // Avisar a pantalla gigante
+  broadcastReset();
+  saveToLocalStorage();
+}
+
+// ===================== PANELS (HISTORIAL & ESTADISTICAS) =====================
+function toggleHistory() {
+  histVis = !histVis;
+  var panel = document.getElementById('histPanel');
+  panel.classList.toggle('show', histVis);
+  if (histVis) renderHist();
+}
+
+function renderHist() {
+  var l = document.getElementById('histList');
+  l.innerHTML = '';
+  called.forEach(function(n) {
+    var d = document.createElement('div');
+    d.className = 'hist-item';
+    d.textContent = String(n).padStart(2, '0');
+    l.appendChild(d);
+  });
+}
+
+function toggleStats() {
+  statsVis = !statsVis;
+  var panel = document.getElementById('statsPanel');
+  panel.classList.toggle('show', statsVis);
+  if (statsVis) renderStats();
+}
+
+function renderStats() {
+  var total = called.length;
+  var rem = 100 - total;
+  var pct = total;
+  var s = startTime ? Math.floor((Date.now() - startTime) / 1000) : 0;
+  var elapsed = String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
+  var avg = total > 0 ? (s / total).toFixed(1) : '0';
+  document.getElementById('statsGrid').innerHTML =
+    '<div class="stat-card"><div class="val">' + total + '</div><div class="lbl">Bolillas Extraídas</div></div>' +
+    '<div class="stat-card"><div class="val">' + rem + '</div><div class="lbl">Restantes</div></div>' +
+    '<div class="stat-card"><div class="val">' + pct + '%</div><div class="lbl">Progreso del Juego</div></div>' +
+    '<div class="stat-card"><div class="val">' + avg + 's</div><div class="lbl">Promedio por Bolilla</div></div>' +
+    '<div class="stat-card"><div class="val">' + elapsed + '</div><div class="lbl">Tiempo Transcurrido</div></div>';
+}
+
+// ===================== CONGRATS MODAL & CONFETTI =====================
+function showCongrats(title, msg, runConfetti) {
+  document.getElementById('modTitle').textContent = title;
+  document.getElementById('modMsg').textContent = msg;
+  document.getElementById('modIcon').textContent = runConfetti ? '🏆' : '🎉';
+  document.getElementById('modalOverlay').classList.add('show');
+  if (runConfetti) launchConfetti();
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('show');
+  document.getElementById('confetti').innerHTML = '';
+}
+
+function launchConfetti() {
+  var c = document.getElementById('confetti');
+  c.innerHTML = '';
+  var cols = ['#6366f1', '#f59e0b', '#10b981', '#f43f5e', '#ec4899', '#3b82f6', '#a855f7'];
+  for (var i = 0; i < 110; i++) {
+    var p = document.createElement('div');
+    p.className = 'confetti-piece';
+    p.style.left = Math.random() * 100 + '%';
+    p.style.backgroundColor = cols[Math.floor(Math.random() * cols.length)];
+    p.style.animationDelay = Math.random() * 2 + 's';
+    p.style.animationDuration = (2.2 + Math.random() * 1.8) + 's';
+    p.style.width = (6 + Math.random() * 8) + 'px';
+    p.style.height = (6 + Math.random() * 8) + 'px';
+    p.style.borderRadius = Math.random() > 0.4 ? '50%' : '0';
+    c.appendChild(p);
+  }
+}
+
+function showStatus(t, warn) {
+  var s = document.getElementById('status');
+  s.textContent = t;
+  s.style.color = warn ? 'var(--color-danger)' : 'var(--color-accent)';
+  setTimeout(function() { 
+    s.style.color = 'var(--color-accent)'; 
+  }, 2500);
+}
+
+// ===================== LOCAL STORAGE PERSISTENCE =====================
+function saveToLocalStorage() {
+  var nameInp = document.getElementById('playerName');
+  var pName = nameInp ? nameInp.value : '';
+  
+  var state = {
+    called: called,
+    lastFive: lastFive,
+    startTime: startTime,
+    playerName: pName,
+    playerCard: playerCard,
+    isLineWon: isLineWon,
+    isBingoWon: isBingoWon,
+    isPaused: isPaused,
+    voiceOn: voiceOn,
+    vRate: vRate,
+    vPitch: vPitch,
+    vStyle: vStyle,
+    selectedVoiceName: selectedVoiceName,
+    isLight: isLight
+  };
+  localStorage.setItem('bolillero_premium_save', JSON.stringify(state));
+}
+
+function checkSavedGameExists() {
+  var saved = localStorage.getItem('bolillero_premium_save');
+  if (!saved) return false;
+  try {
+    var s = JSON.parse(saved);
+    return s.called && s.called.length > 0;
+  } catch (e) {
+    return false;
+  }
+}
+
+function showRecoveryToast() {
+  document.getElementById('recoveryToast').style.display = 'block';
+}
+
+function hideRecoveryToast() {
+  document.getElementById('recoveryToast').style.display = 'none';
+}
+
+function restoreSavedGame() {
+  hideRecoveryToast();
+  var saved = localStorage.getItem('bolillero_premium_save');
+  if (!saved) return;
+  try {
+    var s = JSON.parse(saved);
+    called = s.called || [];
+    lastFive = s.lastFive || [];
+    startTime = s.startTime || Date.now();
+    playerCard = s.playerCard || null;
+    isLineWon = s.isLineWon || false;
+    isBingoWon = s.isBingoWon || false;
+    isPaused = s.isPaused || false;
+    voiceOn = s.voiceOn !== undefined ? s.voiceOn : true;
+    vRate = s.vRate || 1.0;
+    vPitch = s.vPitch || 1.1;
+    vStyle = s.vStyle || 'simple';
+    selectedVoiceName = s.selectedVoiceName || '';
+    isLight = s.isLight || false;
+    
+    // Restaurar UI
+    document.getElementById('playerName').value = s.playerName || '';
+    document.getElementById('voiceRate').value = vRate;
+    document.getElementById('voicePitch').value = vPitch;
+    document.getElementById('rateVal').textContent = vRate.toFixed(1);
+    document.getElementById('pitchVal').textContent = vPitch.toFixed(1);
+    document.getElementById('voiceStyle').value = vStyle;
+    document.body.classList.toggle('light', isLight);
+    document.getElementById('themeBtn').textContent = isLight ? '🌓 Tema oscuro' : '🌓 Tema claro';
+    
+    var b = document.getElementById('voiceToggle');
+    b.classList.toggle('on', voiceOn);
+    b.textContent = voiceOn ? '🔊 Voz ON' : '🔇 Voz OFF';
+    
+    var pauseBtn = document.getElementById('btnPause');
+    pauseBtn.textContent = isPaused ? '▶️ Reanudar' : '⏸️ Pausar';
+    
+    if (called.length > 0) {
+      var last = called[called.length - 1];
+      var big = document.getElementById('bigNum');
+      big.className = 'big';
+      big.textContent = String(last).padStart(2, '0');
+    }
+    
+    loadVoices();
+    updateDisplay();
+    showStatus('💾 Partida restaurada con éxito');
+    broadcast();
+  } catch (e) {
+    showStatus('⚠️ Error al cargar partida', true);
+  }
+}
+
+function discardSavedGame() {
+  hideRecoveryToast();
+  localStorage.removeItem('bolillero_premium_save');
+  generateNewCard();
+  startTime = Date.now();
+  updateDisplay();
+}
+
+// ===================== GIANT SCREEN (SYNC SYSTEM) =====================
+function openGiant() {
+  if (giantWin && !giantWin.closed) { 
+    giantWin.focus(); 
+    return; 
+  }
+  var sw = window.screen.width;
+  var feat = 'width=900,height=700,left=' + sw + ',top=0';
+  giantWin = window.open('', 'giantScreen', feat);
+  if (!giantWin) { 
+    showStatus('⚠️ Por favor permite las ventanas emergentes en el navegador', true); 
+    return; 
+  }
+  
+  var html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>🎱 Bolillero - Pantalla Gigante</title>
+  <style>
+    body {
+      margin: 0;
+      background: linear-gradient(135deg, #0f172a, #1e1b4b, #111827);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 30px;
+      padding: 40px;
+      font-family: Arial, sans-serif;
+      color: #fff;
+      overflow: hidden;
+    }
+    .giant-title {
+      font-size: 2.8vw;
+      color: #f59e0b;
+      font-weight: bold;
+      text-shadow: 0 0 20px rgba(245, 158, 11, 0.35);
+      margin: 0;
+    }
+    .giant-num {
+      width: 38vw;
+      height: 38vw;
+      max-width: 420px;
+      max-height: 420px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #f43f5e, #be123c);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17vw;
+      font-weight: 900;
+      color: #fff;
+      text-shadow: 0 4px 30px rgba(0,0,0,0.4);
+      box-shadow: 0 0 100px rgba(244,63,94,0.55), inset 0 0 50px rgba(255,255,255,0.25);
+      border: 10px solid rgba(255,255,255,0.2);
+      transition: all 0.4s;
+    }
+    .mini-grid {
+      display: grid;
+      grid-template-columns: repeat(10, 1fr);
+      gap: 5px;
+      width: 75vw;
+      max-width: 720px;
+    }
+    .mini-cell {
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1vw;
+      font-weight: bold;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #94a3b8;
+    }
+    .mini-cell.called {
+      background: linear-gradient(135deg, #10b981, #22c55e);
+      color: #fff;
+      border-color: transparent;
+    }
+    .mini-cell.last {
+      background: linear-gradient(135deg, #f43f5e, #e11d48);
+      color: #fff;
+      box-shadow: 0 0 12px rgba(244,63,94,0.7);
+    }
+    @keyframes popIn {
+      0% { transform: scale(0.5); opacity: 0; }
+      70% { transform: scale(1.15); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    @media(max-width:600px){
+      .giant-num { width: 68vw; height: 68vw; font-size: 28vw; }
+      .giant-title { font-size: 6vw; }
+      .mini-cell { font-size: 2.5vw; }
+    }
+  </style>
+</head>
+<body>
+  <p class="giant-title">🎱 Bolillero Digital</p>
+  <div class="giant-num" id="gNum">?</div>
+  <div class="mini-grid" id="gGrid"></div>
+  
+  <script>
+    const grid = document.getElementById("gGrid");
+    for(let i=0; i<100; i++) {
+      const c = document.createElement("div");
+      c.className = "mini-cell";
+      c.id = "g-" + i;
+      c.textContent = String(i).padStart(2, "0");
+      grid.appendChild(c);
+    }
+    
+    function sync(data) {
+      if (data.type === "draw") {
+        const num = data.number;
+        const bigNum = document.getElementById("gNum");
+        bigNum.textContent = num !== undefined ? String(num).padStart(2, "0") : "?";
+        bigNum.style.animation = "none";
+        bigNum.offsetHeight; // trigger reflow
+        bigNum.style.animation = "popIn 0.5s ease-out";
+        
+        document.querySelectorAll(".mini-cell").forEach(c => c.classList.remove("last", "called"));
+        
+        data.called.forEach((n, idx) => {
+          const el = document.getElementById("g-" + n);
+          if (el) {
+            el.classList.add("called");
+            if (idx === data.called.length - 1) el.classList.add("last");
+          }
+        });
+      } else if (data.type === "reset") {
+        document.getElementById("gNum").textContent = "?";
+        document.querySelectorAll(".mini-cell").forEach(c => c.classList.remove("called", "last"));
+      }
+    }
+
+    window.addEventListener("message", e => {
+      sync(e.data);
+    });
+
+    try {
+      const bc = new BroadcastChannel("bolillero");
+      bc.onmessage = e => {
+        sync(e.data);
+      };
+    } catch(e) {}
+  <\/script>
+</body>
+</html>`;
+
+  giantWin.document.write(html);
+  giantWin.document.close();
+  showStatus('📺 Pantalla Gigante abierta. Arrástrala a tu pantalla de proyección.');
+  
+  // Sincronizar inmediatamente el estado actual
+  setTimeout(broadcast, 400);
+}
+
+function broadcast() {
+  try {
+    var data = { 
+      type: 'draw', 
+      number: called[called.length - 1], 
+      called: called.slice(), 
+      lastFive: lastFive.slice() 
+    };
+    if (giantWin && !giantWin.closed) {
+      giantWin.postMessage(data, '*');
+    }
+    // Usar BroadcastChannel como redundancia
+    var bc = new BroadcastChannel("bolillero");
+    bc.postMessage(data);
+    bc.close();
+  } catch (e) {}
+}
+
+function broadcastReset() {
+  try {
+    var data = { type: 'reset' };
+    if (giantWin && !giantWin.closed) {
+      giantWin.postMessage(data, '*');
+    }
+    var bc = new BroadcastChannel("bolillero");
+    bc.postMessage(data);
+    bc.close();
+  } catch (e) {}
+}
+
+// ===================== EXPORT SYSTEM =====================
+function exportGame() {
+  var pName = document.getElementById('playerName').value.trim() || 'Jugador';
+  var dateStr = new Date().toLocaleString('es-ES');
+  var secondsElapsed = startTime ? Math.floor((Date.now() - startTime) / 1000) : 0;
+  var durationStr = String(Math.floor(secondsElapsed / 60)).padStart(2, '0') + ':' + String(secondsElapsed % 60).padStart(2, '0');
+  var historyStr = called.map(function(n) { return String(n).padStart(2, '0'); }).join(', ') || 'Ninguna';
+  
+  var txt = 'BOLILLERO DIGITAL PREMIUM - INFORME DE PARTIDA\n';
+  txt += '===============================================\n';
+  txt += 'Jugador: ' + pName + '\n';
+  txt += 'Fecha: ' + dateStr + '\n';
+  txt += 'Duración de partida: ' + durationStr + '\n';
+  txt += 'Bolillas extraídas: ' + called.length + ' / 100\n';
+  txt += 'Premios obtenidos en cartón: ' + (isBingoWon ? 'BINGO' : isLineWon ? 'LÍNEA' : 'NINGUNO') + '\n\n';
+  txt += 'HISTORIAL DE EXTRACCIONES:\n' + historyStr + '\n\n';
+  txt += 'Últimas 5 bolillas registradas: ' + lastFive.map(function(n) { return String(n).padStart(2, '0'); }).join(', ') + '\n';
+  
+  var blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'bolillero-partida-' + Date.now() + '.txt';
+  a.click();
+  URL.revokeObjectURL(url);
+  showStatus('📤 Partida exportada correctamente');
+}
+
+// ===================== START APP =====================
+init();
+
+</script>
+</body>
+</html>

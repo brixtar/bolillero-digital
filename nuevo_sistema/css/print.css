@@ -1,0 +1,285 @@
+/* ==========================================================================
+   PRINT.CSS - Estilos de Impresión Térmica (58mm / 80mm) y Hojas A4
+   Optimizado para impresoras de tickets (POS/ESC) y marcado con lapicera.
+   ========================================================================== */
+
+/* Reglas en pantalla para previsualizar cartones */
+.cards-container-screen {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: center;
+}
+
+.card-wrapper {
+  background: #ffffff;
+  color: #000000;
+  border: 2px solid #000000;
+  border-radius: 6px;
+  padding: 10px;
+  box-sizing: border-box;
+  font-family: 'Courier New', Courier, monospace, sans-serif;
+  page-break-inside: avoid;
+}
+
+/* Encabezado del cartón */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 2px solid #000000;
+  padding-bottom: 6px;
+  margin-bottom: 6px;
+}
+
+.card-header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-width: 72%;
+}
+
+.card-event-title {
+  font-size: 1.05rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  line-height: 1.15;
+}
+
+.card-regulatory-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.ajalar-badge {
+  background: #000000;
+  color: #ffffff;
+  padding: 1px 4px;
+  border-radius: 2px;
+  font-size: 0.62rem;
+  font-weight: 900;
+}
+
+.card-extra-info {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #333333;
+}
+
+.card-header-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.card-series-tag {
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  background: #f0f0f0;
+  padding: 1px 6px;
+  border-radius: 2px;
+  border: 1px solid #000000;
+}
+
+.card-serial {
+  font-size: 1.35rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  line-height: 1;
+}
+
+/* Franja de premios */
+.card-prizes-strip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 3px;
+  padding: 3px 8px;
+  margin-bottom: 6px;
+  font-size: 0.74rem;
+  font-weight: 600;
+}
+
+.card-prizes-strip strong {
+  font-weight: 900;
+  color: #0f172a;
+}
+
+.prizes-sep {
+  opacity: 0.4;
+}
+
+/* ==========================================================================
+   FORMATO DE IMPRESIÓN TÉRMICA (TICKETS 58mm / 80mm)
+   ========================================================================== */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Ocultar cualquier elemento de navegación, botones o controles */
+  .no-print, header, .header-actions, .controls-panel, .btn-print-action {
+    display: none !important;
+  }
+
+  /* FORMATO TÉRMICO POR DEFECTO (Ajustado a bobina de 58mm o 80mm) */
+  body.print-mode-thermal {
+    width: 100% !important;
+  }
+
+  body.print-mode-thermal .cards-container-screen {
+    display: block !important;
+    width: 100% !important;
+    max-width: 78mm !important; /* Para 80mm, o 54mm para 58mm */
+    margin: 0 auto !important;
+  }
+
+  body.print-mode-thermal .card-wrapper {
+    width: 100% !important;
+    border: 2px solid #000000 !important;
+    margin-bottom: 12mm !important;
+    padding: 6px !important;
+    page-break-after: always;
+  }
+
+  body.print-mode-thermal .bingo-cell {
+    font-size: 1.05rem !important;
+    border: 1.5px solid #000000 !important;
+    aspect-ratio: 1 !important;
+  }
+
+  body.print-mode-thermal .bingo-cell.empty {
+    background: transparent !important;
+    border: 1px dotted #888888 !important;
+  }
+
+  /* FORMATO PLANCHA A4 (Para recortar) */
+  body.print-mode-a4 .cards-container-screen {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8mm !important;
+    width: 100% !important;
+  }
+
+  body.print-mode-a4.layout-2 .cards-container-screen {
+    grid-template-columns: 1fr !important;
+    gap: 14mm !important;
+  }
+
+  body.print-mode-a4.layout-6 .cards-container-screen {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 5mm !important;
+  }
+
+  body.print-mode-a4 .card-wrapper {
+    border: 2px solid #000000 !important;
+    box-shadow: none !important;
+    page-break-inside: avoid;
+    position: relative;
+    padding: 8px !important;
+  }
+
+  body.print-mode-a4.layout-2 .card-wrapper {
+    padding: 16px !important;
+  }
+  body.print-mode-a4.layout-2 .bingo-cell {
+    font-size: 1.8rem !important;
+    aspect-ratio: 1.2 !important;
+  }
+
+  body.print-mode-a4.layout-6 .card-wrapper {
+    padding: 4px !important;
+  }
+  body.print-mode-a4.layout-6 .bingo-cell {
+    font-size: 0.95rem !important;
+  }
+
+  /* Línea punteada de guía de corte */
+  body.print-mode-a4 .card-wrapper::after {
+    content: '✂ - - - - - - - - - - - - - - - - - - - - - - - - - -';
+    position: absolute;
+    bottom: -5mm;
+    left: 0;
+    width: 100%;
+    font-size: 0.65rem;
+    color: #666;
+    text-align: center;
+  }
+}
+
+/* ==========================================================================
+   TEMAS DE COLOR PARA CARTONES (PANTALLA E IMPRESIÓN)
+   ========================================================================== */
+.card-wrapper.theme-blue {
+  border-color: #1e40af;
+}
+.card-wrapper.theme-blue .card-header {
+  border-bottom-color: #1e40af;
+  color: #1e40af;
+}
+.card-wrapper.theme-blue .bingo-cell:not(.empty) {
+  border-color: #1e40af;
+  color: #1e3a8a;
+}
+
+.card-wrapper.theme-green {
+  border-color: #065f46;
+}
+.card-wrapper.theme-green .card-header {
+  border-bottom-color: #065f46;
+  color: #065f46;
+}
+.card-wrapper.theme-green .bingo-cell:not(.empty) {
+  border-color: #065f46;
+  color: #064e3b;
+}
+
+.card-wrapper.theme-red {
+  border-color: #991b1b;
+}
+.card-wrapper.theme-red .card-header {
+  border-bottom-color: #991b1b;
+  color: #991b1b;
+}
+.card-wrapper.theme-red .bingo-cell:not(.empty) {
+  border-color: #991b1b;
+  color: #7f1d1d;
+}
+
+.card-wrapper.theme-gold {
+  border-color: #b45309;
+}
+.card-wrapper.theme-gold .card-header {
+  border-bottom-color: #b45309;
+  color: #b45309;
+}
+.card-wrapper.theme-gold .bingo-cell:not(.empty) {
+  border-color: #b45309;
+  color: #78350f;
+}
+
+.card-wrapper.theme-bw {
+  border-color: #000000;
+}
+.card-wrapper.theme-bw .card-header {
+  border-bottom-color: #000000;
+  color: #000000;
+}
+.card-wrapper.theme-bw .bingo-cell:not(.empty) {
+  border-color: #000000;
+  color: #000000;
+}
+

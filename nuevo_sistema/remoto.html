@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>📱 Control Remoto - Bolillero Digital Pro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #0b0f19;
+      --panel-bg: rgba(22, 27, 46, 0.85);
+      --panel-border: rgba(255, 255, 255, 0.1);
+      --primary: #6366f1;
+      --primary-glow: rgba(99, 102, 241, 0.4);
+      --accent: #f59e0b;
+      --success: #10b981;
+      --danger: #ef4444;
+      --danger-glow: rgba(239, 68, 68, 0.4);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: radial-gradient(circle at 50% 10%, #1e1b4b 0%, #0b0f19 90%);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: env(safe-area-inset-top, 12px) 16px env(safe-area-inset-bottom, 16px) 16px;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
+    /* Cabecera del control */
+    .remote-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 4px 14px 4px;
+      border-bottom: 1px solid var(--panel-border);
+    }
+
+    .brand-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--panel-border);
+    }
+
+    .status-badge.connected {
+      color: #34d399;
+      border-color: rgba(52, 211, 153, 0.4);
+      background: rgba(16, 185, 129, 0.15);
+    }
+
+    .status-badge.disconnected {
+      color: #f87171;
+      border-color: rgba(248, 113, 113, 0.4);
+      background: rgba(239, 68, 68, 0.15);
+    }
+
+    .status-badge .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: currentColor;
+      box-shadow: 0 0 8px currentColor;
+    }
+
+    /* Tarjeta de Bolilla Actual */
+    .live-ball-card {
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      margin: 12px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      -webkit-backdrop-filter: blur(12px);
+      backdrop-filter: blur(12px);
+    }
+
+    .ball-sphere-preview {
+      width: 105px;
+      height: 105px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #ff8a8a 0%, #dc2626 50%, #991b1b 90%);
+      box-shadow: 0 12px 30px var(--danger-glow),
+                  inset 0 -8px 15px rgba(0,0,0,0.5),
+                  inset 0 6px 12px rgba(255,255,255,0.6);
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Outfit', sans-serif;
+      font-size: 3.4rem;
+      font-weight: 900;
+      color: #ffffff;
+      text-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+      transition: all 0.3s;
+    }
+
+    .ball-sphere-preview.empty {
+      background: radial-gradient(circle at 35% 30%, #475569 0%, #1e293b 60%, #0f172a 100%);
+      color: #64748b;
+      font-size: 2.2rem;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+    }
+
+    .ball-sphere-preview.pop {
+      animation: popAnim 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes popAnim {
+      0% { transform: scale(0.6); }
+      70% { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
+
+    .ball-nickname {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-top: 8px;
+      text-align: center;
+      min-height: 1.5rem;
+    }
+
+    .ball-counter {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* Barra de últimas 5 */
+    .last-five-row {
+      display: flex;
+      gap: 6px;
+      margin-top: 12px;
+      width: 100%;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .mini-ball {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--panel-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Outfit', sans-serif;
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--text-muted);
+    }
+
+    .mini-ball.active {
+      background: linear-gradient(135deg, var(--primary), #4338ca);
+      color: #fff;
+      border-color: rgba(99, 102, 241, 0.5);
+      box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
+    }
+
+    /* BOTÓN GIGANTE PARA SACAR BOLILLA */
+    .draw-section {
+      margin: 8px 0 16px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .btn-draw-giant {
+      width: 100%;
+      padding: 24px 16px;
+      border-radius: var(--radius-lg);
+      border: none;
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 50%, #991b1b 100%);
+      color: #ffffff;
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.65rem;
+      font-weight: 900;
+      letter-spacing: -0.01em;
+      box-shadow: 0 12px 30px var(--danger-glow),
+                  inset 0 2px 4px rgba(255,255,255,0.4),
+                  inset 0 -4px 8px rgba(0,0,0,0.4);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      transition: transform 0.1s ease, filter 0.15s;
+    }
+
+    .btn-draw-giant:active {
+      transform: scale(0.96);
+      filter: brightness(0.9);
+    }
+
+    .btn-draw-giant span.sub {
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      opacity: 0.85;
+    }
+
+    /* Fila de controles secundarios */
+    .secondary-controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .btn-remote {
+      padding: 14px 12px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--panel-border);
+      background: var(--panel-bg);
+      color: var(--text-main);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+      transition: all 0.15s;
+    }
+
+    .btn-remote:active {
+      transform: scale(0.96);
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-remote.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+      box-shadow: 0 4px 15px var(--primary-glow);
+    }
+
+    .btn-remote.paused {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #0f172a;
+    }
+
+    /* Pestaña / Sección Verificador */
+    .verify-section {
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      margin-top: auto;
+      -webkit-backdrop-filter: blur(12px);
+      backdrop-filter: blur(12px);
+    }
+
+    .verify-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .verify-target-badge {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .target-toggle-mobile {
+      display: flex;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 3px;
+      border-radius: var(--radius-sm);
+      margin-bottom: 10px;
+    }
+
+    .target-toggle-mobile button {
+      flex: 1;
+      padding: 8px;
+      border-radius: 6px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .target-toggle-mobile button.active {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .verify-input-wrap {
+      display: flex;
+      gap: 8px;
+    }
+
+    .verify-input-wrap input {
+      flex: 1;
+      padding: 12px 14px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--panel-border);
+      background: rgba(255, 255, 255, 0.06);
+      color: #fff;
+      font-size: 1.05rem;
+      font-weight: 700;
+      outline: none;
+      text-align: center;
+    }
+
+    .verify-input-wrap button {
+      padding: 12px 18px;
+      border-radius: var(--radius-sm);
+      border: none;
+      background: linear-gradient(135deg, var(--success), #059669);
+      color: #fff;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    /* Modal / Feedback de Verificación */
+    .verify-mobile-result {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: var(--radius-sm);
+      font-size: 0.9rem;
+      display: none;
+    }
+
+    .verify-mobile-result.winner {
+      display: block;
+      background: rgba(16, 185, 129, 0.2);
+      border: 1px solid var(--success);
+      color: #34d399;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    .verify-mobile-result.no-winner {
+      display: block;
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid var(--danger);
+      color: #f87171;
+      text-align: center;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Cabecera -->
+  <header class="remote-header">
+    <div class="brand-title">
+      <span>🎱</span> Bolillero Pro
+    </div>
+    <div class="status-badge disconnected" id="connectionStatusBadge">
+      <span class="dot"></span> Conectando...
+    </div>
+  </header>
+
+  <!-- Tarjeta Bolilla Actual -->
+  <section class="live-ball-card">
+    <div class="ball-sphere-preview empty" id="remoteBallSphere">
+      <span id="remoteBallText">--</span>
+    </div>
+    <div class="ball-nickname" id="remoteBallNick">Listo para comenzar</div>
+    <div class="ball-counter" id="remoteCounterText">0 / 90 Bolillas</div>
+
+    <!-- Últimas 5 -->
+    <div class="last-five-row">
+      <div class="mini-ball" id="rm-last-1">--</div>
+      <div class="mini-ball" id="rm-last-2">--</div>
+      <div class="mini-ball" id="rm-last-3">--</div>
+      <div class="mini-ball" id="rm-last-4">--</div>
+      <div class="mini-ball" id="rm-last-5">--</div>
+    </div>
+  </section>
+
+  <!-- Control Táctil Gigante -->
+  <section class="draw-section">
+    <button class="btn-draw-giant" id="btnRemoteDraw" onclick="actionDrawBall()">
+      🎲 SACAR BOLILLA
+      <span class="sub">Tocar para extraer</span>
+    </button>
+
+    <div class="secondary-controls">
+      <button class="btn-remote" id="btnRemotePause" onclick="actionTogglePause()">
+        ⏸️ Pausar
+      </button>
+      <button class="btn-remote" id="btnRemoteAuto" onclick="actionToggleAuto()">
+        ▶️ Modo Auto
+      </button>
+    </div>
+  </section>
+
+  <!-- Verificador Móvil -->
+  <section class="verify-section">
+    <div class="verify-title">
+      <span>🔍 Verificar Cartón</span>
+      <span class="verify-target-badge" id="verifyTargetLabel">Premio: BINGO</span>
+    </div>
+
+    <div class="target-toggle-mobile">
+      <button type="button" id="tabMobileLine" onclick="setMobileTarget('line')">⭐ Línea</button>
+      <button type="button" class="active" id="tabMobileBingo" onclick="setMobileTarget('bingo')">🏆 Bingo</button>
+    </div>
+
+    <div class="verify-input-wrap">
+      <input type="text" id="mobileSerialInput" placeholder="N° Serie (#042)" onkeydown="if(event.key==='Enter') actionVerifyCard()">
+      <button type="button" onclick="actionVerifyCard()">Verificar</button>
+    </div>
+
+    <div class="verify-mobile-result" id="mobileVerifyFeedback"></div>
+  </section>
+
+  <!-- Scripts -->
+  <script src="js/remote-client.js"></script>
+  <script src="js/voz.js"></script>
+  <script>
+    let currentTarget = 'bingo';
+    let isPaused = false;
+    let isAuto = false;
+    const voiceEngine = new VoiceEngine();
+
+    function setMobileTarget(target) {
+      currentTarget = target;
+      document.getElementById('tabMobileLine').classList.toggle('active', target === 'line');
+      document.getElementById('tabMobileBingo').classList.toggle('active', target === 'bingo');
+      document.getElementById('verifyTargetLabel').textContent = target === 'line' ? 'Premio: LÍNEA' : 'Premio: BINGO';
+    }
+
+    function actionDrawBall() {
+      if (navigator.vibrate) navigator.vibrate([30, 20, 40]);
+      window.remoteClient?.sendCommand('DRAW_BALL');
+    }
+
+    function actionTogglePause() {
+      if (navigator.vibrate) navigator.vibrate(30);
+      window.remoteClient?.sendCommand('TOGGLE_PAUSE');
+    }
+
+    function actionToggleAuto() {
+      if (navigator.vibrate) navigator.vibrate(30);
+      window.remoteClient?.sendCommand('TOGGLE_AUTO');
+    }
+
+    function actionVerifyCard() {
+      const input = document.getElementById('mobileSerialInput');
+      const serial = input ? input.value.trim() : '';
+      if (!serial) return;
+
+      if (navigator.vibrate) navigator.vibrate(40);
+      const feedback = document.getElementById('mobileVerifyFeedback');
+      if (feedback) {
+        feedback.className = 'verify-mobile-result';
+        feedback.style.display = 'block';
+        feedback.textContent = 'Verificando cartón...';
+      }
+
+      window.remoteClient?.sendCommand('VERIFY_CARD', {
+        serial: serial,
+        target: currentTarget
+      });
+    }
+
+    // Escuchar actualizaciones del servidor / bolillero
+    window.remoteClient?.onMessage((msg) => {
+      if (!msg) return;
+
+      if (msg.type === 'INIT_STATE' || msg.type === 'STATE_SYNC' || msg.type === 'DRAW_BALL') {
+        const state = msg.payload || {};
+        updateMobileUI(state);
+      } else if (msg.type === 'VERIFY_RESULT') {
+        renderVerifyResult(msg);
+      }
+    });
+
+    function updateMobileUI(state) {
+      const called = state.called || [];
+      const lastFive = state.lastFive || [];
+      const lastDrawn = state.lastDrawn !== undefined && state.lastDrawn !== null 
+        ? state.lastDrawn 
+        : (called.length > 0 ? called[called.length - 1] : null);
+      const total = state.totalNumbers || 90;
+
+      // Actualizar Bolilla Actual
+      const sphere = document.getElementById('remoteBallSphere');
+      const text = document.getElementById('remoteBallText');
+      const nick = document.getElementById('remoteBallNick');
+      const counter = document.getElementById('remoteCounterText');
+
+      if (lastDrawn !== null) {
+        sphere.className = 'ball-sphere-preview pop';
+        text.textContent = String(lastDrawn).padStart(2, '0');
+        const nickStr = voiceEngine.nicknames[lastDrawn];
+        nick.textContent = nickStr ? `“${nickStr.toUpperCase()}”` : `Número ${lastDrawn}`;
+      } else {
+        sphere.className = 'ball-sphere-preview empty';
+        text.textContent = '--';
+        nick.textContent = 'Listo para comenzar';
+      }
+
+      counter.textContent = `${called.length} / ${total} Bolillas Extraídas`;
+
+      // Actualizar últimas 5
+      for (let i = 1; i <= 5; i++) {
+        const el = document.getElementById(`rm-last-${i}`);
+        if (el) {
+          if (i <= lastFive.length) {
+            el.textContent = String(lastFive[i - 1]).padStart(2, '0');
+            el.classList.add('active');
+          } else {
+            el.textContent = '--';
+            el.classList.remove('active');
+          }
+        }
+      }
+
+      // Actualizar botón de Pausa
+      isPaused = !!state.isPaused;
+      const pauseBtn = document.getElementById('btnRemotePause');
+      if (pauseBtn) {
+        pauseBtn.classList.toggle('paused', isPaused);
+        pauseBtn.innerHTML = isPaused ? '▶️ Reanudar' : '⏸️ Pausar';
+      }
+
+      // Actualizar botón Auto
+      isAuto = !!state.autoInterval;
+      const autoBtn = document.getElementById('btnRemoteAuto');
+      if (autoBtn) {
+        autoBtn.classList.toggle('active', isAuto);
+        autoBtn.innerHTML = isAuto ? '⏹️ Detener Auto' : '▶️ Modo Auto';
+      }
+    }
+
+    function renderVerifyResult(msg) {
+      const feedback = document.getElementById('mobileVerifyFeedback');
+      if (!feedback) return;
+
+      if (!msg.result && !msg.card) {
+        feedback.className = 'verify-mobile-result no-winner';
+        feedback.textContent = `❌ ${msg.error || 'Cartón no encontrado'}`;
+        return;
+      }
+
+      const res = msg.result;
+      const serial = msg.serial;
+      const target = msg.target === 'line' ? 'LÍNEA' : 'BINGO';
+
+      if (res.isWinner) {
+        feedback.className = 'verify-mobile-result winner';
+        feedback.innerHTML = `🏆 ¡¡GANADOR DE ${target}!!<br>Cartón ${serial} tiene ${res.matchesCount} números completados.`;
+        if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 200]);
+      } else {
+        feedback.className = 'verify-mobile-result no-winner';
+        feedback.innerHTML = `❌ Cartón ${serial}: Aún faltan ${res.missingCount} números para ${target}.`;
+      }
+    }
+  </script>
+</body>
+</html>

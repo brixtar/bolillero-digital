@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎟️ Emisión e Impresión de Cartones - Bolillero Digital</title>
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/print.css">
+  <style>
+    .admin-container {
+      max-width: 1200px;
+      margin: 25px auto;
+      padding: 0 20px;
+      width: 100%;
+    }
+
+    .toolbar-card {
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      margin-bottom: 25px;
+      box-shadow: var(--panel-glow);
+      backdrop-filter: blur(12px);
+    }
+
+    .toolbar-title-wrap {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--panel-border);
+    }
+
+    .ajalar-compliance-pill {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid var(--success);
+      color: #34d399;
+      padding: 4px 12px;
+      border-radius: var(--radius-full);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .toolbar-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .form-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-field label {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .form-field input, .form-field select {
+      padding: 9px 12px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--panel-border);
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-main);
+      font-size: 0.92rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .form-field input:focus, .form-field select:focus {
+      border-color: var(--primary);
+    }
+
+    .action-buttons-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      border-top: 1px solid var(--panel-border);
+      padding-top: 18px;
+    }
+
+    .btn-action {
+      padding: 11px 20px;
+      font-size: 0.92rem;
+      font-weight: 700;
+      border-radius: var(--radius-md);
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+
+    .btn-action.generate {
+      background: linear-gradient(135deg, var(--primary), #4338ca);
+      color: #fff;
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.35);
+    }
+
+    .btn-action.print-thermal {
+      background: linear-gradient(135deg, var(--success), #059669);
+      color: #fff;
+      box-shadow: 0 4px 15px var(--success-glow);
+    }
+
+    .btn-action.print-a4 {
+      background: linear-gradient(135deg, var(--accent), #d97706);
+      color: #0f172a;
+    }
+
+    .btn-action.clear {
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid var(--danger);
+      color: var(--danger);
+      margin-left: auto;
+    }
+
+    .btn-action:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.1);
+    }
+
+    /* Vista previa de cartones en pantalla */
+    .preview-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .badge-count {
+      background: var(--primary);
+      color: #fff;
+      padding: 4px 12px;
+      border-radius: var(--radius-full);
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    /* Estado vacío */
+    .empty-batch-box {
+      text-align: center;
+      padding: 50px 20px;
+      border: 2px dashed rgba(255, 255, 255, 0.15);
+      border-radius: var(--radius-lg);
+      background: rgba(255, 255, 255, 0.02);
+      color: var(--text-muted);
+    }
+
+    .empty-batch-box .empty-icon {
+      font-size: 3.5rem;
+      margin-bottom: 12px;
+    }
+
+    .empty-batch-box h3 {
+      color: var(--text-main);
+      font-size: 1.3rem;
+      margin-bottom: 8px;
+    }
+
+    /* Modal de confirmación para Vaciar Lote */
+    .modal-backdrop-custom {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      animation: fadeIn 0.2s ease-out;
+    }
+
+    .modal-card-custom {
+      background: #0f172a;
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      box-shadow: 0 10px 40px rgba(239, 68, 68, 0.25);
+      border-radius: var(--radius-lg);
+      max-width: 480px;
+      width: 100%;
+      padding: 26px;
+      text-align: center;
+    }
+
+    .modal-icon-alert {
+      font-size: 3rem;
+      margin-bottom: 12px;
+    }
+
+    .modal-card-custom h3 {
+      font-size: 1.35rem;
+      color: #fff;
+      margin-bottom: 10px;
+    }
+
+    .modal-card-custom p {
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 22px;
+    }
+
+    .modal-actions-custom {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+    }
+
+    .btn-modal-cancel {
+      padding: 10px 20px;
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .btn-modal-confirm {
+      padding: 10px 22px;
+      border-radius: var(--radius-md);
+      background: var(--danger);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      font-weight: 700;
+      box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+    }
+
+    /* Toast flotante */
+    .floating-toast {
+      position: fixed;
+      bottom: 25px;
+      right: 25px;
+      background: #1e293b;
+      border: 1px solid var(--primary);
+      color: #fff;
+      padding: 14px 22px;
+      border-radius: var(--radius-md);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+      z-index: 1100;
+      font-weight: 600;
+      font-size: 0.92rem;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+    }
+
+    .floating-toast.visible {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  </style>
+</head>
+<body class="print-mode-a4 layout-4">
+
+  <!-- Cabecera -->
+  <header class="main-header no-print">
+    <div class="brand-wrap">
+      <span class="brand-icon">🎟️</span>
+      <div>
+        <h1 class="brand-title">Emisión & Impresión Oficial de Cartones</h1>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <a href="index.html" class="btn-header accent">
+        ⬅️ Volver a Mesa de Control
+      </a>
+    </div>
+  </header>
+
+  <main class="admin-container">
+    
+    <!-- Panel de Control de Emisión -->
+    <section class="toolbar-card no-print">
+      <div class="toolbar-title-wrap">
+        <div>
+          <h2 style="font-family: 'Outfit', sans-serif; font-size: 1.3rem; margin-bottom: 4px;">
+            ⚙️ Emisión Reglamentaria de Cartones (90 Bolillas)
+          </h2>
+          <span style="font-size: 0.84rem; color: var(--text-muted);">
+            Configuración de serie, entidad organizadora y fiscalización oficial.
+          </span>
+        </div>
+        <div class="ajalar-compliance-pill">
+          <span>🏛️</span>
+          <span>Cumplimiento Normativo AJALAR</span>
+        </div>
+      </div>
+
+      <div class="toolbar-grid">
+        <div class="form-field">
+          <label for="eventNameInput">Institución / Entidad Organizadora:</label>
+          <input type="text" id="eventNameInput" value="Club Social y Deportivo" placeholder="Ej: Parroquia / Club">
+        </div>
+
+        <div class="form-field">
+          <label for="ajalarResInput">Autorización Oficial AJALAR:</label>
+          <input type="text" id="ajalarResInput" value="Res. AJALAR N° 458/2026" placeholder="N° Resolución / Expte.">
+        </div>
+
+        <div class="form-field">
+          <label for="seriesInput">Serie del Lote:</label>
+          <input type="text" id="seriesInput" value="Serie A" placeholder="Ej: Serie A, Serie B">
+        </div>
+
+        <div class="form-field">
+          <label for="priceInput">Valor Facial del Cartón ($):</label>
+          <input type="text" id="priceInput" value="$ 1.500" placeholder="Ej: $ 1.500">
+        </div>
+
+        <div class="form-field">
+          <label for="dateInput">Fecha y Hora del Sorteo:</label>
+          <input type="text" id="dateInput" value="25/09/2026 - 21:00 hs" placeholder="Ej: 25/09/2026">
+        </div>
+
+        <div class="form-field">
+          <label for="prizeLineInput">Premio Línea ($):</label>
+          <input type="text" id="prizeLineInput" value="$ 50.000" placeholder="Monto Premio Línea">
+        </div>
+
+        <div class="form-field">
+          <label for="prizeBingoInput">Premio Bingo ($):</label>
+          <input type="text" id="prizeBingoInput" value="$ 250.000" placeholder="Monto Premio Bingo">
+        </div>
+
+        <div class="form-field">
+          <label for="batchCountSelect">Cantidad de Cartones a Emitir:</label>
+          <select id="batchCountSelect">
+            <option value="1">1 Cartón (Muestra)</option>
+            <option value="4">4 Cartones (1 Hoja A4)</option>
+            <option value="6">6 Cartones</option>
+            <option value="12" selected>12 Cartones (3 Hojas A4)</option>
+            <option value="24">24 Cartones (6 Hojas A4)</option>
+            <option value="50">50 Cartones</option>
+            <option value="100">100 Cartones</option>
+            <option value="200">200 Cartones</option>
+          </select>
+        </div>
+
+        <div class="form-field">
+          <label for="printFormatSelect">Formato de Salida / Impresión:</label>
+          <select id="printFormatSelect" onchange="changePrintFormat(this.value)">
+            <option value="a4" selected>📄 Plancha de Hojas A4 (Con líneas de corte)</option>
+            <option value="thermal">🧾 Impresora Térmica (Tickets 58mm / 80mm)</option>
+          </select>
+        </div>
+
+        <div class="form-field" id="layoutFormField">
+          <label for="layoutA4Select">📑 Distribución en Hoja A4:</label>
+          <select id="layoutA4Select" onchange="changeLayout(this.value)">
+            <option value="layout-4" selected>4 por hoja (Recomendado estándar)</option>
+            <option value="layout-2">2 por hoja (Grandes / Adultos Mayores)</option>
+            <option value="layout-6">6 por hoja (Económico / Compacto)</option>
+          </select>
+        </div>
+
+        <div class="form-field">
+          <label for="colorThemeSelect">🎨 Color del Cartón (Hojas A4):</label>
+          <select id="colorThemeSelect" onchange="renderCards()">
+            <option value="theme-blue" selected>🔵 Azul Institucional</option>
+            <option value="theme-green">🟢 Verde Esmeralda</option>
+            <option value="theme-red">🔴 Rojo Rubí</option>
+            <option value="theme-gold">🟡 Dorado / Ámbar</option>
+            <option value="theme-bw">⚫ Blanco y Negro (Ahorro de Tinta)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="action-buttons-row">
+        <button class="btn-action generate" onclick="generateBatchAction()">
+          ✨ Generar Lote de Cartones
+        </button>
+
+        <button class="btn-action print-a4" onclick="triggerPrint('a4')">
+          📄 Imprimir en Hoja A4
+        </button>
+
+        <button class="btn-action print-thermal" onclick="triggerPrint('thermal')">
+          🧾 Imprimir en Ticketera
+        </button>
+
+        <button class="btn-action clear" onclick="clearAllCardsAction()">
+          🗑️ Vaciar Lote
+        </button>
+      </div>
+    </section>
+
+    <!-- Vista previa de cartones emitidos -->
+    <section>
+      <div class="preview-header no-print">
+        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.2rem;">
+          📋 Cartones Emitidos y Registrados en el Sistema
+        </h3>
+        <span class="badge-count" id="cardsCountBadge">0 cartones</span>
+      </div>
+
+      <!-- Contenedor donde se imprimen los cartones -->
+      <div class="cards-container-screen" id="cardsOutputContainer">
+        <!-- Renderizado dinámico -->
+      </div>
+    </section>
+  </main>
+
+  <!-- ===================== MODAL DE CONFIRMACIÓN VACIAR LOTE ===================== -->
+  <div id="clearConfirmModal" class="modal-backdrop-custom" style="display: none;">
+    <div class="modal-card-custom">
+      <div class="modal-icon-alert">⚠️</div>
+      <h3>¿Vaciar todo el lote de cartones?</h3>
+      <p>
+        Se eliminarán todos los cartones emitidos actualmente tanto de la memoria como del verificador oficial de jugadas.
+        <br><br>
+        Esta acción te permitirá comenzar un lote completamente nuevo desde el <strong>Cartón #0001</strong> con combinaciones 100% aleatorias.
+      </p>
+      <div class="modal-actions-custom">
+        <button class="btn-modal-cancel" onclick="closeClearModal()">Cancelar</button>
+        <button class="btn-modal-confirm" onclick="executeClearBatch()">🗑️ Sí, Vaciar Todo</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast de Notificaciones -->
+  <div id="systemToast" class="floating-toast"></div>
+
+  <script src="js/storage.js"></script>
+  <script src="js/cartones.js"></script>
+  <script>
+    let currentFormat = 'a4';
+    let currentLayout = 'layout-4';
+
+    function showToast(message) {
+      const toast = document.getElementById('systemToast');
+      if (!toast) return;
+      toast.textContent = message;
+      toast.classList.add('visible');
+      setTimeout(() => {
+        toast.classList.remove('visible');
+      }, 3200);
+    }
+
+    function renderCards() {
+      const container = document.getElementById('cardsOutputContainer');
+      const badge = document.getElementById('cardsCountBadge');
+      const cards = window.cardManager ? window.cardManager.cards : [];
+      const theme = document.getElementById('colorThemeSelect')?.value || 'theme-blue';
+
+      badge.textContent = `${cards.length} cartones (90 Bolillas)`;
+
+      if (cards.length === 0) {
+        container.innerHTML = `
+          <div class="no-print empty-batch-box">
+            <div class="empty-icon">🎟️</div>
+            <h3>No hay cartones emitidos en este lote</h3>
+            <p style="margin-bottom: 18px;">
+              Completá los datos institucionales y de autorización AJALAR arriba, elegí la cantidad y presioná <strong>"Generar Lote de Cartones"</strong>.
+            </p>
+            <button class="btn-action generate" onclick="generateBatchAction()" style="margin: 0 auto;">
+              ✨ Generar Cartones Ahora
+            </button>
+          </div>
+        `;
+        return;
+      }
+
+      const isTicket = currentFormat === 'thermal';
+      let html = '';
+      cards.forEach(card => {
+        html += window.cardManager.renderCardHTML(card, { isTicket: isTicket, theme: theme });
+      });
+      container.innerHTML = html;
+    }
+
+    function collectBatchMetadata() {
+      return {
+        institution: document.getElementById('eventNameInput')?.value.trim() || 'Club Social y Deportivo',
+        ajalarRes: document.getElementById('ajalarResInput')?.value.trim() || 'Autorizado por AJALAR',
+        series: document.getElementById('seriesInput')?.value.trim() || 'Serie A',
+        price: document.getElementById('priceInput')?.value.trim() || '',
+        date: document.getElementById('dateInput')?.value.trim() || '',
+        prizeLine: document.getElementById('prizeLineInput')?.value.trim() || '',
+        prizeBingo: document.getElementById('prizeBingoInput')?.value.trim() || ''
+      };
+    }
+
+    function generateBatchAction() {
+      const count = parseInt(document.getElementById('batchCountSelect').value, 10);
+      const metadata = collectBatchMetadata();
+      const eventName = metadata.institution;
+      
+      const newCards = window.cardManager?.generateBatch(count, eventName, false, metadata);
+      renderCards();
+      showToast(`✨ Se generaron ${count} cartones nuevos (Total: ${window.cardManager.cards.length}).`);
+    }
+
+    function clearAllCardsAction() {
+      const modal = document.getElementById('clearConfirmModal');
+      if (modal) modal.style.display = 'flex';
+    }
+
+    function closeClearModal() {
+      const modal = document.getElementById('clearConfirmModal');
+      if (modal) modal.style.display = 'none';
+    }
+
+    function executeClearBatch() {
+      window.cardManager?.clearCards();
+      renderCards();
+      closeClearModal();
+      showToast('🗑️ Lote vaciado con éxito. La numeración reinicia en #0001.');
+    }
+
+    function changePrintFormat(format) {
+      currentFormat = format;
+      const layoutField = document.getElementById('layoutFormField');
+      if (layoutField) {
+        layoutField.style.display = format === 'a4' ? 'flex' : 'none';
+      }
+      applyBodyClasses();
+      renderCards();
+    }
+
+    function changeLayout(layout) {
+      currentLayout = layout;
+      applyBodyClasses();
+    }
+
+    function applyBodyClasses() {
+      if (currentFormat === 'a4') {
+        document.body.className = `print-mode-a4 ${currentLayout}`;
+      } else {
+        document.body.className = 'print-mode-thermal';
+      }
+    }
+
+    function triggerPrint(format) {
+      changePrintFormat(format);
+      const printSelect = document.getElementById('printFormatSelect');
+      if (printSelect) printSelect.value = format;
+
+      if (!window.cardManager || window.cardManager.cards.length === 0) {
+        alert('Primero debés generar cartones antes de imprimir.');
+        return;
+      }
+
+      setTimeout(() => {
+        window.print();
+      }, 150);
+    }
+
+    // Inicializar al cargar sin autogenerar cartones si está vacío
+    document.addEventListener('DOMContentLoaded', () => {
+      applyBodyClasses();
+      renderCards();
+    });
+  </script>
+</body>
+</html>

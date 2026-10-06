@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎱 Bolillero Digital</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 15px;
+    min-height: 100vh;
+    margin: 0;
+  }
+  h1 {
+    margin-bottom: 5px;
+    background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-size: 2.2rem;
+  }
+  .sub { color: #a0a0a0; margin-bottom: 10px; font-size: 0.9rem; }
+
+  /* Config button */
+  .config-btn {
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #fff;
+    font-size: 1.4rem;
+    cursor: pointer;
+    z-index: 100;
+  }
+  .config-btn:hover { background: #feca57; color: #1a1a2e; }
+
+  /* Drawer */
+  .drawer-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 200;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s;
+  }
+  .drawer-overlay.open { opacity: 1; visibility: visible; }
+  .drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 320px;
+    max-width: 90vw;
+    height: 100%;
+    background: linear-gradient(180deg, #16213e, #1a1a2e);
+    border-left: 1px solid rgba(255,255,255,0.1);
+    z-index: 201;
+    transform: translateX(100%);
+    transition: transform 0.35s;
+    padding: 20px;
+    overflow-y: auto;
+  }
+  .drawer.open { transform: translateX(0); }
+  .drawer h3 { color: #feca57; margin-bottom: 15px; font-size: 1.1rem; }
+  .drawer-section { margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+  .drawer-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+  .drawer-row label { font-size: 0.8rem; color: #a0a0a0; min-width: 60px; }
+  .drawer-row select, .drawer-row input[type="text"] { flex: 1; padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: #fff; font-size: 0.85rem; }
+  .drawer-row input[type="range"] { flex: 1; }
+  .drawer-row .val { font-size: 0.75rem; color: #feca57; min-width: 30px; text-align: right; }
+  .toggle-btn { padding: 8px 14px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: #fff; cursor: pointer; font-size: 0.85rem; font-weight: bold; }
+  .toggle-btn.on { background: linear-gradient(135deg, #00b894, #00cec9); border-color: #00cec9; }
+  .drawer-btn { width: 100%; padding: 10px; border-radius: 10px; border: none; color: #fff; font-weight: bold; cursor: pointer; margin-bottom: 8px; font-size: 0.9rem; }
+  .drawer-btn.green { background: linear-gradient(135deg, #00b894, #00cec9); }
+  .drawer-btn.blue { background: linear-gradient(135deg, #54a0ff, #2e86de); }
+  .drawer-btn.gold { background: linear-gradient(135deg, #feca57, #ff9f43); color: #1a1a2e; }
+  .drawer-btn.red { background: linear-gradient(135deg, #ff6b6b, #ee5a5a); }
+  .drawer-btn.purple { background: linear-gradient(135deg, #9b59b6, #8e44ad); }
+  .file-wrap { position: relative; overflow: hidden; display: inline-block; }
+  .file-wrap input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+
+  /* Last 5 */
+  .last { display: flex; gap: 10px; margin-bottom: 15px; padding: 10px 20px; background: rgba(255,255,255,0.05); border-radius: 40px; border: 1px solid rgba(255,255,255,0.1); }
+  .last div { width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; font-weight: bold; background: rgba(128,128,128,0.15); color: #888; border: 2px solid rgba(255,255,255,0.1); transition: all 0.3s; }
+  .last div.on { color: #fff; transform: scale(1.1); border-color: transparent; }
+  .last div.on:nth-child(1) { background: linear-gradient(135deg, #ff6b6b, #ee5a5a); box-shadow: 0 0 15px rgba(255,107,107,0.5); }
+  .last div.on:nth-child(2) { background: linear-gradient(135deg, #feca57, #ff9f43); box-shadow: 0 0 15px rgba(254,202,87,0.5); }
+  .last div.on:nth-child(3) { background: linear-gradient(135deg, #48dbfb, #0abde3); box-shadow: 0 0 15px rgba(72,219,251,0.5); }
+  .last div.on:nth-child(4) { background: linear-gradient(135deg, #ff9ff3, #f368e0); box-shadow: 0 0 15px rgba(255,159,243,0.5); }
+  .last div.on:nth-child(5) { background: linear-gradient(135deg, #54a0ff, #2e86de); box-shadow: 0 0 15px rgba(84,160,255,0.5); }
+
+  /* Main layout */
+  .main-wrap { display: flex; gap: 30px; align-items: flex-start; justify-content: center; width: 100%; max-width: 1100px; margin-bottom: 20px; }
+  .left-col { display: flex; flex-direction: column; align-items: center; gap: 10px; flex-shrink: 0; }
+  .right-col { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
+
+  /* Big number */
+  .big { width: 260px; height: 260px; border-radius: 50%; background: linear-gradient(135deg, #ff6b6b, #ee5a5a); display: flex; align-items: center; justify-content: center; font-size: 7rem; font-weight: 900; color: #fff; text-shadow: 0 4px 20px rgba(0,0,0,0.3); box-shadow: 0 0 60px rgba(255,107,107,0.4), inset 0 0 40px rgba(255,255,255,0.2); border: 8px solid rgba(255,255,255,0.2); margin-bottom: 10px; transition: all 0.3s; }
+  .big.empty { background: linear-gradient(135deg, #636e72, #2d3436); font-size: 3rem; color: #b2bec3; box-shadow: 0 0 30px rgba(0,0,0,0.3); }
+  .big.shake { animation: shake 0.08s ease-in-out infinite; }
+  @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
+
+  .status { color: #feca57; margin-bottom: 10px; min-height: 22px; font-weight: bold; font-size: 1rem; text-align: center; }
+
+  /* Progress */
+  .prog { width: 100%; max-width: 400px; margin-bottom: 15px; }
+  .prog-bar { width: 100%; height: 16px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); }
+  .prog-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #00b894, #00cec9); border-radius: 10px; transition: width 0.5s; }
+  .prog-text { text-align: center; color: #a0a0a0; font-size: 0.85rem; margin-top: 4px; }
+
+  /* Buttons */
+  .controls { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center; }
+  button { padding: 15px 30px; border: none; border-radius: 50px; font-size: 1rem; font-weight: bold; cursor: pointer; color: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.3); transition: all 0.3s; }
+  button:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.4); }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  .draw { background: linear-gradient(135deg, #00b894, #00cec9); font-size: 1.2rem; padding: 18px 45px; }
+  .pause { background: linear-gradient(135deg, #feca57, #ff9f43); }
+  .reset { background: linear-gradient(135deg, #ff6b6b, #ee5a5a); }
+  .auto { background: linear-gradient(135deg, #9b59b6, #8e44ad); }
+  .btn-sm { padding: 8px 16px; font-size: 0.8rem; }
+
+  .auto-box { display: none; gap: 10px; align-items: center; justify-content: center; flex-wrap: wrap; margin-bottom: 15px; padding: 8px; background: rgba(0,0,0,0.15); border-radius: 10px; }
+  .auto-box.show { display: flex; }
+  .auto-box label { font-size: 0.75rem; color: #a0a0a0; }
+  .auto-box .spd { font-size: 0.8rem; color: #feca57; min-width: 36px; text-align: center; }
+
+  /* Grid */
+  .grid-title { text-align: center; margin-bottom: 10px; font-size: 1.1rem; color: #b2bec3; }
+  .grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; }
+  .grid div { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: bold; border-radius: 6px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #ddd; transition: all 0.3s; }
+  .grid div.called { background: linear-gradient(135deg, #00b894, #00cec9); color: #fff; border-color: #00cec9; box-shadow: 0 0 8px rgba(0,206,201,0.4); }
+  .grid div.last { background: linear-gradient(135deg, #ff6b6b, #ee5a5a); box-shadow: 0 0 12px rgba(255,107,107,0.6); animation: pulse 1s ease-in-out infinite; }
+  @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+
+  /* History / Stats */
+  .panel { width: 100%; max-width: 800px; margin-top: 15px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 14px; border: 1px solid rgba(255,255,255,0.1); display: none; }
+  .panel.show { display: block; }
+  .panel-title { text-align: center; color: #feca57; margin-bottom: 10px; font-weight: bold; }
+  .hist-list { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; max-height: 130px; overflow-y: auto; padding: 5px; }
+  .hist-item { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold; background: linear-gradient(135deg, #00b894, #00cec9); color: #fff; }
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+  .stat-card { background: rgba(0,0,0,0.15); padding: 12px; border-radius: 10px; text-align: center; }
+  .stat-card .val { font-size: 1.5rem; font-weight: bold; color: #feca57; }
+  .stat-card .lbl { font-size: 0.75rem; color: #a0a0a0; margin-top: 4px; }
+
+  /* Bingo */
+  .bingo-box { width: 100%; max-width: 800px; margin-top: 15px; padding: 18px; background: rgba(255,255,255,0.05); border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); }
+  .bingo-box h2 { text-align: center; margin-bottom: 12px; font-size: 1.15rem; color: #feca57; }
+  .bingo-inputs { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 12px; }
+  .bingo-inputs div { display: flex; flex-direction: column; gap: 4px; }
+  .bingo-inputs label { font-size: 0.75rem; color: #a0a0a0; }
+  .bingo-inputs input { padding: 9px 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: #fff; font-size: 0.9rem; width: 190px; text-align: center; }
+  .bingo-btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .bingo-btns button { padding: 11px 22px; font-size: 0.9rem; }
+  .btn-line { background: linear-gradient(135deg, #feca57, #ff9f43); }
+  .btn-card { background: linear-gradient(135deg, #9b59b6, #8e44ad); }
+
+  /* Modal */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; visibility: hidden; transition: all 0.4s; }
+  .modal-overlay.show { opacity: 1; visibility: visible; }
+  .modal-box { background: linear-gradient(135deg, #1a1a2e, #16213e); padding: 40px 50px; border-radius: 28px; text-align: center; border: 2px solid #feca57; box-shadow: 0 0 60px rgba(254,202,87,0.3); max-width: 90%; }
+  .modal-box h2 { font-size: 2.4rem; margin-bottom: 10px; background: linear-gradient(90deg, #feca57, #ff9f43, #ff6b6b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .modal-box p { font-size: 1.1rem; color: #b2bec3; margin-bottom: 20px; }
+  .modal-box .icon { font-size: 3.5rem; margin-bottom: 10px; }
+  .btn-close { background: linear-gradient(135deg, #00b894, #00cec9); padding: 12px 30px; font-size: 1rem; border: none; border-radius: 50px; color: #fff; font-weight: bold; cursor: pointer; }
+
+  /* Confetti */
+  .confetti { position: fixed; inset: 0; pointer-events: none; z-index: 999; overflow: hidden; }
+  .confetti-piece { position: absolute; width: 10px; height: 10px; animation: confettiFall 3s ease-out forwards; }
+  @keyframes confettiFall { 0% { transform: translateY(-100px) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
+
+  @media (max-width: 768px) {
+    .big { width: 180px; height: 180px; font-size: 5rem; }
+    .grid div { width: 30px; height: 30px; font-size: 0.75rem; }
+    h1 { font-size: 1.7rem; }
+    .main-wrap { flex-direction: column; align-items: center; gap: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<button class="config-btn" onclick="toggleDrawer()">☰</button>
+
+<div class="drawer-overlay" id="drawerOverlay" onclick="toggleDrawer()"></div>
+<div class="drawer" id="drawer">
+  <h3>⚙️ Configuración</h3>
+
+  <div class="drawer-section">
+    <h3>🎙️ Voz</h3>
+    <div class="drawer-row">
+      <button class="toggle-btn on" id="voiceToggle" onclick="toggleVoice()">🔊 Voz ON</button>
+    </div>
+    <div class="drawer-row">
+      <label>Velocidad</label>
+      <input type="range" id="voiceRate" min="0.5" max="1.5" step="0.1" value="1.0" oninput="updateVoice()">
+      <span class="val" id="rateVal">1.0</span>
+    </div>
+    <div class="drawer-row">
+      <label>Tono</label>
+      <input type="range" id="voicePitch" min="0.5" max="2.0" step="0.1" value="1.2" oninput="updateVoice()">
+      <span class="val" id="pitchVal">1.2</span>
+    </div>
+    <div class="drawer-row">
+      <label>Estilo</label>
+      <select id="voiceStyle" onchange="vStyle=this.value">
+        <option value="dramatic">Dramático</option>
+        <option value="bingo">Bingo Cantado</option>
+        <option value="simple">Simple</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="drawer-section">
+    <h3>🎨 Apariencia</h3>
+    <div class="drawer-row">
+      <button class="toggle-btn" id="themeBtn" onclick="toggleTheme()">🌓 Tema oscuro</button>
+      <div class="file-wrap">
+        <button class="toggle-btn">🖼️ Fondo</button>
+        <input type="file" accept="image/*" onchange="changeBg(event)">
+      </div>
+    </div>
+  </div>
+
+  <div class="drawer-section">
+    <h3>🏠 Jugador</h3>
+    <div class="drawer-row">
+      <label>Nombre</label>
+      <input type="text" id="playerName" placeholder="Tu nombre">
+    </div>
+  </div>
+
+  <div class="drawer-section">
+    <h3>🛠️ Herramientas</h3>
+    <button class="drawer-btn green" onclick="toggleHistory();toggleDrawer()">📜 Historial</button>
+    <button class="drawer-btn blue" onclick="toggleStats();toggleDrawer()">📊 Estadísticas</button>
+    <button class="drawer-btn gold" onclick="exportGame();toggleDrawer()">📤 Exportar</button>
+    <button class="drawer-btn purple" onclick="openGiant();toggleDrawer()">📺 Pantalla Gigante</button>
+  </div>
+</div>
+
+<h1>🎱 Bolillero Digital</h1>
+<p class="sub">Números del 00 al 99</p>
+
+<div class="last" id="lastBar">
+  <div id="l1">-</div>
+  <div id="l2">-</div>
+  <div id="l3">-</div>
+  <div id="l4">-</div>
+  <div id="l5">-</div>
+</div>
+
+<div class="main-wrap">
+  <div class="left-col">
+    <div class="big empty" id="bigNum">?</div>
+    <p class="status" id="status">Presiona "Sacar Bolilla" para comenzar</p>
+    <div class="prog">
+      <div class="prog-bar"><div class="prog-fill" id="progFill"></div></div>
+      <p class="prog-text" id="progText">0 / 100 bolillas</p>
+    </div>
+    <div class="controls">
+      <button class="draw" id="btnDraw" onclick="draw()">🎲 Sacar Bolilla</button>
+      <button class="auto" id="btnAuto" onclick="toggleAuto()">▶️ Auto</button>
+      <button class="pause" id="btnPause" onclick="togglePause()">⏸️ Pausar</button>
+      <button class="reset" onclick="reset()">🔄 Reiniciar</button>
+    </div>
+    <div class="auto-box" id="autoBox">
+      <label>Velocidad:</label>
+      <input type="range" id="autoSpeed" min="1" max="10" step="0.5" value="3" oninput="updateAutoSpeed()">
+      <span class="spd" id="spdVal">3s</span>
+    </div>
+  </div>
+  <div class="right-col">
+    <div class="grid-title">📋 Bolillero completo</div>
+    <div class="grid" id="grid"></div>
+  </div>
+</div>
+
+<!-- History Panel -->
+<div class="panel" id="histPanel">
+  <p class="panel-title">📜 Historial de bolillas</p>
+  <div class="hist-list" id="histList"></div>
+</div>
+
+<!-- Stats Panel -->
+<div class="panel" id="statsPanel">
+  <p class="panel-title">📊 Estadísticas</p>
+  <div class="stats-grid" id="statsGrid"></div>
+</div>
+
+<!-- Bingo Control -->
+<div class="bingo-box">
+  <h2>🎯 Control de Línea y Cartón</h2>
+  <div class="bingo-inputs">
+    <div>
+      <label>Números de tu línea</label>
+      <input type="text" id="lineNumbers" placeholder="Ej: 5, 23, 47, 68, 89">
+    </div>
+    <div>
+      <label>Números de tu cartón (15)</label>
+      <input type="text" id="cardNumbers" placeholder="Ej: 5, 12, 23, 34, 47, 8, 19, 55, 67, 71, 3, 82, 91, 16, 29">
+    </div>
+  </div>
+  <div class="bingo-btns">
+    <button class="btn-line" onclick="checkLine()">✅ Verificar Línea</button>
+    <button class="btn-card" onclick="checkCard()">🏆 Verificar Cartón</button>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-box">
+    <div class="icon" id="modIcon">🎉</div>
+    <h2 id="modTitle">¡Felicitaciones!</h2>
+    <p id="modMsg">¡Has completado una línea!</p>
+    <button class="btn-close" onclick="closeModal()">¡Genial!</button>
+  </div>
+</div>
+
+<div class="confetti" id="confetti"></div>
+
+<script>
+// ===================== STATE =====================
+var numbers = [];
+var called = [];
+var lastFive = [];
+var isPaused = false;
+var isDrawing = false;
+var voiceOn = true;
+var vRate = 1.0;
+var vPitch = 1.2;
+var vStyle = 'dramatic';
+var histVis = false;
+var statsVis = false;
+var startTime = null;
+var giantWin = null;
+var isLight = false;
+var autoInt = null;
+var autoSpd = 3;
+var actx = null;
+
+// ===================== INIT =====================
+function init() {
+  for (var i = 0; i < 100; i++) numbers.push(i);
+  createGrid();
+  updateDisplay();
+  startTime = Date.now();
+}
+
+function createGrid() {
+  var g = document.getElementById('grid');
+  g.innerHTML = '';
+  for (var i = 0; i < 100; i++) {
+    var d = document.createElement('div');
+    d.id = 'c' + i;
+    d.textContent = String(i).padStart(2, '0');
+    g.appendChild(d);
+  }
+}
+
+// ===================== AUDIO =====================
+function getCtx() {
+  if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
+  return actx;
+}
+function drum() {
+  try {
+    var c = getCtx();
+    var t0 = c.currentTime;
+    for (var i = 0; i < 8; i++) {
+      var o = c.createOscillator();
+      var g = c.createGain();
+      o.connect(g);
+      g.connect(c.destination);
+      o.type = 'triangle';
+      var t = t0 + i * 0.1;
+      o.frequency.setValueAtTime(80 + Math.random() * 40, t);
+      g.gain.setValueAtTime(0.12, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
+      o.start(t);
+      o.stop(t + 0.1);
+    }
+  } catch (e) {}
+}
+function bell() {
+  try {
+    var c = getCtx();
+    var t = c.currentTime;
+    var o = c.createOscillator();
+    var g = c.createGain();
+    o.connect(g);
+    g.connect(c.destination);
+    o.type = 'sine';
+    o.frequency.setValueAtTime(1047, t);
+    g.gain.setValueAtTime(0.25, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 1.5);
+    o.start(t);
+    o.stop(t + 1.5);
+  } catch (e) {}
+}
+function winTune() {
+  try {
+    var c = getCtx();
+    var notes = [523, 659, 784, 1047];
+    for (var i = 0; i < notes.length; i++) {
+      var t = c.currentTime + i * 0.2;
+      var o = c.createOscillator();
+      var g = c.createGain();
+      o.connect(g);
+      g.connect(c.destination);
+      o.type = 'sine';
+      o.frequency.setValueAtTime(notes[i], t);
+      g.gain.setValueAtTime(0.18, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
+      o.start(t);
+      o.stop(t + 0.3);
+    }
+  } catch (e) {}
+}
+
+// ===================== VOICE =====================
+function speak(n) {
+  if (!voiceOn || !('speechSynthesis' in window)) return;
+  try {
+    window.speechSynthesis.cancel();
+    var u = new SpeechSynthesisUtterance(callText(n));
+    var voices = window.speechSynthesis.getVoices();
+    var v = voices.find(function(x) { return x.lang.startsWith('es'); });
+    if (!v) v = voices.find(function(x) { return x.lang.includes('en'); });
+    if (v) u.voice = v;
+    u.lang = 'es-ES';
+    u.rate = vRate;
+    u.pitch = vPitch;
+    u.volume = 1;
+    window.speechSynthesis.speak(u);
+  } catch (e) {}
+}
+function callText(n) {
+  var s = String(n).padStart(2, '0');
+  if (vStyle === 'simple') return s;
+  if (vStyle === 'bingo') return bingoPoem(n);
+  var arr = ['¡Y el número es...', '¡Atención! Sale el...', '¡Aquí viene...', '¡Con ustedes...', '¡La suerte dice...'];
+  return arr[Math.floor(Math.random() * arr.length)] + ' ' + s + '! ' + s + '!';
+}
+function bingoPoem(n) {
+  var s = String(n).padStart(2, '0');
+  var poems = {
+    0: 'El cero, héroe del bingo',
+    1: 'El uno, el primero',
+    2: 'El dos, el patito',
+    3: 'El tres, la trinidad',
+    4: 'El cuatro, la fortuna',
+    5: 'El cinco, la mano de la gloria',
+    6: 'El seis, la suerte',
+    7: 'El siete, el mágico',
+    8: 'El ocho, infinito',
+    9: 'El nueve, el que alcanza'
+  };
+  if (n === 77) return '¡Setenta y siete, doble suerte! ' + s + '!';
+  if (poems[n % 10]) return poems[n % 10] + '! ' + s + '!';
+  return '¡El ' + s + '! ' + s + '!';
+}
+function toggleVoice() {
+  voiceOn = !voiceOn;
+  var b = document.getElementById('voiceToggle');
+  b.classList.toggle('on', voiceOn);
+  b.textContent = voiceOn ? '🔊 Voz ON' : '🔇 Voz OFF';
+  showStatus(voiceOn ? '🔊 Voz activada' : '🔇 Voz silenciada');
+}
+function updateVoice() {
+  vRate = parseFloat(document.getElementById('voiceRate').value);
+  vPitch = parseFloat(document.getElementById('voicePitch').value);
+  document.getElementById('rateVal').textContent = vRate.toFixed(1);
+  document.getElementById('pitchVal').textContent = vPitch.toFixed(1);
+}
+
+// ===================== DRAWER =====================
+function toggleDrawer() {
+  var d = document.getElementById('drawer');
+  var o = document.getElementById('drawerOverlay');
+  var open = !d.classList.contains('open');
+  d.classList.toggle('open', open);
+  o.classList.toggle('open', open);
+}
+function toggleTheme() {
+  isLight = !isLight;
+  document.body.classList.toggle('light', isLight);
+  document.getElementById('themeBtn').textContent = isLight ? '🌓 Tema claro' : '🌓 Tema oscuro';
+}
+function changeBg(e) {
+  var f = e.target.files[0];
+  if (!f) return;
+  var u = URL.createObjectURL(f);
+  document.body.style.backgroundImage = 'url(' + u + ')';
+  document.body.style.backgroundSize = 'cover';
+  document.body.style.backgroundPosition = 'center';
+  showStatus('🖼️ Fondo aplicado');
+}
+
+// ===================== DRAW =====================
+function draw() {
+  if (isPaused || isDrawing || called.length >= 100) {
+    if (called.length >= 100) showStatus('¡Todas las bolillas salieron!');
+    return;
+  }
+  isDrawing = true;
+  document.getElementById('btnDraw').disabled = true;
+  var big = document.getElementById('bigNum');
+  big.classList.remove('empty');
+  big.classList.add('shake');
+  showStatus('🎲 Revolviendo...');
+  drum();
+  if (navigator.vibrate) navigator.vibrate(30);
+
+  var cnt = 0;
+  var interval = setInterval(function() {
+    big.textContent = String(Math.floor(Math.random() * 100)).padStart(2, '0');
+    cnt++;
+    if (cnt > 12) {
+      clearInterval(interval);
+      finalizeDraw();
+    }
+  }, 70);
+}
+
+function finalizeDraw() {
+  var avail = [];
+  for (var i = 0; i < 100; i++) {
+    if (called.indexOf(i) === -1) avail.push(i);
+  }
+  if (avail.length === 0) {
+    isDrawing = false;
+    document.getElementById('btnDraw').disabled = false;
+    return;
+  }
+  var drawn = avail[Math.floor(Math.random() * avail.length)];
+  called.push(drawn);
+  lastFive.unshift(drawn);
+  if (lastFive.length > 5) lastFive.pop();
+
+  var big = document.getElementById('bigNum');
+  big.classList.remove('shake');
+  big.textContent = String(drawn).padStart(2, '0');
+
+  updateDisplay();
+  showStatus('¡Bolilla ' + String(drawn).padStart(2, '0') + ' salió!');
+  speak(drawn);
+  if (navigator.vibrate) navigator.vibrate(60);
+  broadcast();
+
+  isDrawing = false;
+  document.getElementById('btnDraw').disabled = false;
+}
+
+function updateDisplay() {
+  // Grid
+  var all = document.querySelectorAll('.grid div');
+  for (var i = 0; i < all.length; i++) {
+    all[i].classList.remove('called', 'last');
+  }
+  for (var i = 0; i < called.length; i++) {
+    var el = document.getElementById('c' + called[i]);
+    if (el) {
+      el.classList.add('called');
+      if (i === called.length - 1) el.classList.add('last');
+    }
+  }
+  // Last five
+  for (var i = 1; i <= 5; i++) {
+    var el = document.getElementById('l' + i);
+    if (i <= lastFive.length) {
+      el.textContent = String(lastFive[i - 1]).padStart(2, '0');
+      el.classList.add('on');
+    } else {
+      el.textContent = '-';
+      el.classList.remove('on');
+    }
+  }
+  // Progress
+  var pct = (called.length / 100) * 100;
+  document.getElementById('progFill').style.width = pct + '%';
+  document.getElementById('progText').textContent = called.length + ' / 100 bolillas';
+}
+
+// ===================== AUTO =====================
+function toggleAuto() {
+  var b = document.getElementById('btnAuto');
+  if (autoInt) {
+    clearInterval(autoInt);
+    autoInt = null;
+    b.textContent = '▶️ Auto';
+    document.getElementById('autoBox').classList.remove('show');
+    showStatus('Auto detenido');
+  } else {
+    document.getElementById('autoBox').classList.add('show');
+    b.textContent = '⏹️ Detener';
+    startAuto();
+  }
+}
+function startAuto() {
+  if (autoInt) clearInterval(autoInt);
+  autoInt = setInterval(function() {
+    if (!isPaused && !isDrawing && called.length < 100) draw();
+    else if (called.length >= 100) toggleAuto();
+  }, autoSpd * 1000);
+  showStatus('Auto: cada ' + autoSpd + 's');
+}
+function updateAutoSpeed() {
+  autoSpd = parseFloat(document.getElementById('autoSpeed').value);
+  document.getElementById('spdVal').textContent = autoSpd + 's';
+  if (autoInt) startAuto();
+}
+
+// ===================== PAUSE / RESET =====================
+function togglePause() {
+  isPaused = !isPaused;
+  var btn = document.getElementById('btnPause');
+  btn.textContent = isPaused ? '▶️ Reanudar' : '⏸️ Pausar';
+  showStatus(isPaused ? '⏸️ Juego pausado' : '▶️ Juego reanudado');
+}
+function reset() {
+  if (!confirm('¿Reiniciar?')) return;
+  called = [];
+  lastFive = [];
+  isPaused = false;
+  isDrawing = false;
+  if (autoInt) {
+    clearInterval(autoInt);
+    autoInt = null;
+    document.getElementById('btnAuto').textContent = '▶️ Auto';
+    document.getElementById('autoBox').classList.remove('show');
+  }
+  document.getElementById('bigNum').textContent = '?';
+  document.getElementById('bigNum').classList.add('empty');
+  document.getElementById('btnDraw').disabled = false;
+  document.getElementById('btnPause').textContent = '⏸️ Pausar';
+  showStatus('Presiona "Sacar Bolilla" para comenzar');
+  updateDisplay();
+  startTime = Date.now();
+  broadcast();
+}
+
+// ===================== BINGO CHECK =====================
+function checkLine() {
+  var inp = document.getElementById('lineNumbers').value;
+  if (!inp.trim()) { showStatus('Ingresa los números de tu línea'); return; }
+  var nums = parseNums(inp);
+  if (!nums.length) { showStatus('Números no válidos'); return; }
+  var ok = true;
+  for (var i = 0; i < nums.length; i++) {
+    if (called.indexOf(nums[i]) === -1) { ok = false; break; }
+  }
+  if (ok) { bell(); showCongrats('🎉 ¡LÍNEA!', winMsg('línea', nums), false); }
+  else { showStatus('Aún faltan números', true); }
+}
+function checkCard() {
+  var inp = document.getElementById('cardNumbers').value;
+  if (!inp.trim()) { showStatus('Ingresa los números de tu cartón'); return; }
+  var nums = parseNums(inp);
+  if (!nums.length) { showStatus('Números no válidos'); return; }
+  if (nums.length !== 15) { showStatus('El cartón debe tener exactamente 15 números (tenés ' + nums.length + ')', true); return; }
+  var ok = true;
+  for (var i = 0; i < nums.length; i++) {
+    if (called.indexOf(nums[i]) === -1) { ok = false; break; }
+  }
+  if (ok) { winTune(); showCongrats('🏆 ¡CARTÓN LLENO!', winMsg('cartón', nums), true); }
+  else { showStatus('Aún faltan números', true); }
+}
+function parseNums(inp) {
+  return inp.split(/[,\s]+/)
+    .map(function(s) { return parseInt(s.trim()); })
+    .filter(function(n) { return !isNaN(n) && n >= 0 && n <= 99; });
+}
+function winMsg(type, nums) {
+  var p = document.getElementById('playerName').value.trim();
+  var str = nums.map(function(n) { return String(n).padStart(2, '0'); }).join(', ');
+  return p ? '¡' + p + ' completó su ' + type + ' con: ' + str + '!' : '¡Completaste tu ' + type + ' con: ' + str + '!';
+}
+
+// ===================== HISTORY / STATS =====================
+function toggleHistory() {
+  histVis = !histVis;
+  var panel = document.getElementById('histPanel');
+  panel.classList.toggle('show', histVis);
+  if (histVis) renderHist();
+}
+function renderHist() {
+  var l = document.getElementById('histList');
+  l.innerHTML = '';
+  called.forEach(function(n) {
+    var d = document.createElement('div');
+    d.className = 'hist-item';
+    d.textContent = String(n).padStart(2, '0');
+    l.appendChild(d);
+  });
+}
+function toggleStats() {
+  statsVis = !statsVis;
+  var panel = document.getElementById('statsPanel');
+  panel.classList.toggle('show', statsVis);
+  if (statsVis) renderStats();
+}
+function renderStats() {
+  var total = called.length;
+  var rem = 100 - total;
+  var pct = total;
+  var s = startTime ? Math.floor((Date.now() - startTime) / 1000) : 0;
+  var elapsed = String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
+  var avg = total > 0 ? (s / total).toFixed(1) : '0';
+  document.getElementById('statsGrid').innerHTML =
+    '<div class="stat-card"><div class="val">' + total + '</div><div class="lbl">Bolillas salidas</div></div>' +
+    '<div class="stat-card"><div class="val">' + rem + '</div><div class="lbl">Restantes</div></div>' +
+    '<div class="stat-card"><div class="val">' + pct + '%</div><div class="lbl">Progreso</div></div>' +
+    '<div class="stat-card"><div class="val">' + avg + 's</div><div class="lbl">Promedio/bolilla</div></div>' +
+    '<div class="stat-card"><div class="val">' + elapsed + '</div><div class="lbl">Tiempo de juego</div></div>';
+}
+
+// ===================== MODAL / CONFETTI =====================
+function showCongrats(title, msg, big) {
+  document.getElementById('modTitle').textContent = title;
+  document.getElementById('modMsg').textContent = msg;
+  document.getElementById('modIcon').textContent = big ? '🏆' : '🎉';
+  document.getElementById('modalOverlay').classList.add('show');
+  if (big) launchConf();
+}
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('show');
+  document.getElementById('confetti').innerHTML = '';
+}
+function launchConf() {
+  var c = document.getElementById('confetti');
+  c.innerHTML = '';
+  var cols = ['#ff6b6b', '#feca57', '#48dbfb', '#ff9ff3', '#54a0ff', '#00b894', '#ff9f43'];
+  for (var i = 0; i < 100; i++) {
+    var p = document.createElement('div');
+    p.className = 'confetti-piece';
+    p.style.left = Math.random() * 100 + '%';
+    p.style.backgroundColor = cols[Math.floor(Math.random() * cols.length)];
+    p.style.animationDelay = Math.random() * 2 + 's';
+    p.style.animationDuration = (2 + Math.random() * 2) + 's';
+    p.style.width = (5 + Math.random() * 10) + 'px';
+    p.style.height = (5 + Math.random() * 10) + 'px';
+    p.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+    c.appendChild(p);
+  }
+}
+function showStatus(t, warn) {
+  var s = document.getElementById('status');
+  s.textContent = t;
+  s.style.color = warn ? '#ff6b6b' : '#feca57';
+  setTimeout(function() { s.style.color = '#feca57'; }, 3000);
+}
+
+// ===================== GIANT SCREEN =====================
+function openGiant() {
+  if (giantWin && !giantWin.closed) { giantWin.focus(); return; }
+  var sw = window.screen.width;
+  var feat = 'width=900,height=700,left=' + sw + ',top=0';
+  giantWin = window.open('', 'giantScreen', feat);
+  if (!giantWin) { showStatus('⚠️ Permití ventanas emergentes', true); return; }
+  var html = '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>🎱 Bolillero - Pantalla Gigante</title>' +
+    '<style>body{margin:0;background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:30px;padding:40px;font-family:Arial,sans-serif;color:#fff;overflow:hidden;}' +
+    '.giant-num{width:40vw;height:40vw;max-width:450px;max-height:450px;border-radius:50%;background:linear-gradient(135deg,#ff6b6b,#ee5a5a);display:flex;align-items:center;justify-content:center;font-size:18vw;font-weight:900;color:#fff;text-shadow:0 4px 30px rgba(0,0,0,0.4);box-shadow:0 0 100px rgba(255,107,107,0.5),inset 0 0 60px rgba(255,255,255,0.2);border:10px solid rgba(255,255,255,0.2);transition:all 0.4s;}' +
+    '.giant-title{font-size:2.5vw;color:#feca57;text-shadow:0 0 20px rgba(254,202,87,0.3);}' +
+    '.mini-grid{display:grid;grid-template-columns:repeat(10,1fr);gap:4px;width:70vw;max-width:700px;}' +
+    '.mini-cell{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:1.1vw;font-weight:bold;border-radius:5px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);color:#ddd;}' +
+    '.mini-cell.called{background:linear-gradient(135deg,#00b894,#00cec9);color:#fff;}' +
+    '.mini-cell.last{background:linear-gradient(135deg,#ff6b6b,#ee5a5a);color:#fff;box-shadow:0 0 8px rgba(255,107,107,0.6);}' +
+    '@keyframes popIn{0%{transform:scale(0.5);opacity:0}60%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}' +
+    '@media(max-width:600px){.giant-num{width:70vw;height:70vw;font-size:30vw;}.giant-title{font-size:6vw;}.mini-cell{font-size:2.5vw;}}</style></head><body>' +
+    '<p class="giant-title">🎱 Bolillero Digital</p><div class="giant-num" id="gNum">?</div><div class="mini-grid" id="gGrid"></div>' +
+    '<script>const grid=document.getElementById("gGrid");for(let i=0;i<100;i++){const c=document.createElement("div");c.className="mini-cell";c.id="g-"+i;c.textContent=String(i).padStart(2,"0");grid.appendChild(c);}' +
+    'window.addEventListener("message",e=>{if(e.data.type==="draw"){const num=e.data.number;document.getElementById("gNum").textContent=String(num).padStart(2,"0");document.getElementById("gNum").style.animation="none";document.getElementById("gNum").offsetHeight;document.getElementById("gNum").style.animation="popIn 0.5s ease-out";document.querySelectorAll(".mini-cell").forEach(c=>c.classList.remove("last"));e.data.called.forEach((n,i)=>{const el=document.getElementById("g-"+n);if(el){el.classList.add("called");if(i===e.data.called.length-1)el.classList.add("last");}});}' +
+    'if(e.data.type==="reset"){document.getElementById("gNum").textContent="?";document.querySelectorAll(".mini-cell").forEach(c=>c.classList.remove("called","last"));}});' +
+    'try{const bc=new BroadcastChannel("bolillero");bc.onmessage=e=>{if(e.data.type==="draw"||e.data.type==="reset")window.postMessage(e.data,"*");};}catch(e){}<\/script></body></html>';
+  giantWin.document.write(html);
+  giantWin.document.close();
+  showStatus('📺 Pantalla Gigante abierta. Arrástrala al segundo monitor.');
+}
+
+function broadcast() {
+  try {
+    var data = { type: 'draw', number: called[called.length - 1], called: called.slice(), lastFive: lastFive.slice() };
+    if (giantWin && !giantWin.closed) giantWin.postMessage(data, '*');
+  } catch (e) {}
+}
+
+// ===================== EXPORT =====================
+function exportGame() {
+  var p = document.getElementById('playerName').value.trim() || 'Jugador';
+  var d = new Date().toLocaleString('es-ES');
+  var s = startTime ? Math.floor((Date.now() - startTime) / 1000) : 0;
+  var elapsed = String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
+  var h = called.map(function(n) { return String(n).padStart(2, '0'); }).join(', ') || 'Ninguna';
+  var txt = 'BOLILLERO DIGITAL - EXPORT\n============================\nJugador: ' + p + '\nFecha: ' + d + '\nTiempo: ' + elapsed + '\nSalidas: ' + called.length + '/100\n\nHISTORIAL:\n' + h + '\n\nÚltimos 5: ' + lastFive.map(function(n) { return String(n).padStart(2, '0'); }).join(', ');
+  var blob = new Blob([txt], { type: 'text/plain' });
+  var u = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = u;
+  a.download = 'bolillero-' + Date.now() + '.txt';
+  a.click();
+  URL.revokeObjectURL(u);
+  showStatus('📤 Partida exportada');
+}
+
+// ===================== KEYS =====================
+document.addEventListener('keydown', function(e) {
+  if (e.code === 'Space' && !isDrawing && !isPaused && called.length < 100 && !autoInt) {
+    e.preventDefault();
+    draw();
+  }
+});
+
+init();
+</script>
+</body>
+</html>

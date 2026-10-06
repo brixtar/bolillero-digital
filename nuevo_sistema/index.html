@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎱 Bolillero Digital & Mesa de Control de Bingo</title>
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+
+  <!-- ===================== CABECERA SUPERIOR ===================== -->
+  <header class="main-header">
+    <div class="brand-wrap">
+      <span class="brand-icon">🎱</span>
+      <div>
+        <h1 class="brand-title">Bolillero Digital Pro</h1>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <!-- Botón para abrir la pantalla del proyector en segundo monitor -->
+      <button class="btn-header accent" onclick="window.bolilleroApp?.openProyectorWindow()" title="Abrir en TV o Proyector">
+        📺 Pantalla Gigante
+      </button>
+
+      <!-- Botón para conectar el celular como control remoto vía QR -->
+      <button class="btn-header" onclick="openQrModal()" title="Controlar sorteo desde el celular">
+        📱 Control Celular
+      </button>
+
+      <!-- Botón para ir al módulo de emisión e impresión de cartones térmicos -->
+      <a href="cartones.html" class="btn-header" title="Emitir e imprimir cartones">
+        🎟️ Cartones & Tickets
+      </a>
+
+      <!-- Botón para generar Acta Notarial AJALAR -->
+      <button class="btn-header" onclick="openActaModal()" title="Generar Acta Oficial Notarial de Sorteo AJALAR">
+        📜 Acta Notarial AJALAR
+      </button>
+
+      <!-- Botón para abrir el panel de configuración -->
+      <button class="btn-header" onclick="toggleSettingsDrawer()" title="Configuración de Voz y Sonido">
+        ⚙️ Ajustes
+      </button>
+    </div>
+  </header>
+
+  <!-- ===================== BARRA DE ÚLTIMAS 5 ===================== -->
+  <div class="last-five-bar">
+    <span class="last-five-label">Últimas 5:</span>
+    <div class="last-five-list">
+      <div class="last-ball-item" id="last-ball-1">--</div>
+      <div class="last-ball-item" id="last-ball-2">--</div>
+      <div class="last-ball-item" id="last-ball-3">--</div>
+      <div class="last-ball-item" id="last-ball-4">--</div>
+      <div class="last-ball-item" id="last-ball-5">--</div>
+    </div>
+  </div>
+
+  <!-- ===================== CONTENIDO PRINCIPAL ===================== -->
+  <main class="main-container">
+    
+    <!-- COLUMNA IZQUIERDA: BOLILLERO Y CONTROLES -->
+    <section class="operator-column">
+      <div class="bolillero-card">
+        
+        <!-- Esfera 3D interactiva -->
+        <div class="sphere-stage">
+          <div class="main-ball-sphere empty" id="mainBallDisplay">
+            <span id="mainBallNumber">??</span>
+          </div>
+        </div>
+
+        <!-- Estado actual del sistema -->
+        <div class="status-box">
+          <p class="status-text" id="systemStatusText">Listo para comenzar. Presioná "Sacar Bolilla" o Espacio.</p>
+        </div>
+
+        <!-- Barra de progreso de bolillas -->
+        <div class="progress-section">
+          <div class="progress-track">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+          <div class="progress-info">
+            <span id="progressLabel">0 / 90 bolillas (0%)</span>
+            <span>Rango: 01 - 90</span>
+          </div>
+        </div>
+
+        <!-- Controles ergonómicos -->
+        <div class="control-buttons-grid">
+          <button class="btn-main-draw" id="btnDrawBall" onclick="window.bolilleroApp?.drawBall()">
+            🎲 Sacar Bolilla <small style="font-size:0.75rem; opacity:0.8;">[Espacio]</small>
+          </button>
+
+          <!-- Botón de verificación destacado -->
+          <button class="btn-verify-highlight" onclick="window.bingoVerifier?.openModal('line')">
+            🔍 Verificar Jugada (Línea / Bingo)
+          </button>
+
+          <div class="sub-controls-row">
+            <button class="btn-secondary" id="btnAutoDraw" onclick="window.bolilleroApp?.toggleAutoDraw()">
+              ▶️ Modo Auto
+            </button>
+            <button class="btn-secondary" id="btnPauseGame" onclick="window.bolilleroApp?.togglePause()">
+              ⏸️ Pausar
+            </button>
+            <button class="btn-secondary" onclick="window.bolilleroApp?.resetGame()">
+              🔄 Reiniciar
+            </button>
+          </div>
+
+          <!-- Controles del modo automático -->
+          <div class="auto-controls-box" id="autoControlsBox">
+            <label for="autoSpeedRange">Velocidad:</label>
+            <input type="range" id="autoSpeedRange" min="1.5" max="8" step="0.5" value="3.5">
+            <span class="speed-badge" id="autoSpeedLabel">3.5s</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tarjetas de métricas rápidas -->
+      <div class="stats-cards-grid">
+        <div class="stat-item">
+          <div class="val" id="statTotalDrawn">0</div>
+          <div class="lbl">Extraídas</div>
+        </div>
+        <div class="stat-item">
+          <div class="val" id="statRemaining">90</div>
+          <div class="lbl">Restantes</div>
+        </div>
+        <div class="stat-item">
+          <div class="val" id="gameElapsedTime">00:00</div>
+          <div class="lbl">Tiempo</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- COLUMNA DERECHA: TABLERO GENERAL (01 a 90) -->
+    <section class="board-column">
+      <div class="board-header">
+        <h2 class="board-title">📋 Tablero General</h2>
+        <span style="font-size: 0.85rem; color: var(--text-muted);">90 Números (01 al 90)</span>
+      </div>
+
+      <div class="main-board-grid" id="mainBoardGrid">
+        <!-- Generado dinámicamente de 01 a 90 -->
+      </div>
+    </section>
+  </main>
+
+  <!-- ===================== MODAL DE VERIFICACIÓN ===================== -->
+  <div class="modal-backdrop" id="verifyModal">
+    <div class="verify-modal-card">
+      <div class="modal-header">
+        <h2>🔍 Verificador Oficial</h2>
+        <button class="btn-close-modal" onclick="window.bingoVerifier?.closeModal()">&times;</button>
+      </div>
+
+      <!-- Selector de objetivo: Línea vs Bingo -->
+      <div class="target-selector">
+        <button class="target-tab active" id="btnTargetLine" onclick="window.bingoVerifier?.setTarget('line')">
+          ⭐ Verificar Línea
+        </button>
+        <button class="target-tab" id="btnTargetBingo" onclick="window.bingoVerifier?.setTarget('bingo')">
+          🏆 Verificar Cartón Lleno
+        </button>
+      </div>
+
+      <!-- Selector de modo: Por Serie vs Manual -->
+      <div class="mode-toggle-wrap">
+        <button class="mode-tab active" id="tabModeSerial" onclick="window.bingoVerifier?.setMode('serial')">
+          Por N° de Serie (#042)
+        </button>
+        <button class="mode-tab" id="tabModeManual" onclick="window.bingoVerifier?.setMode('manual')">
+          Ingreso Manual de Números
+        </button>
+      </div>
+
+      <!-- Sección N° de Serie -->
+      <div id="verifySerialSection">
+        <div class="verify-input-group">
+          <label for="verifySerialInput">Número de Serie o ID del Cartón:</label>
+          <input type="text" id="verifySerialInput" placeholder="Ej: 42 o #042" onkeydown="if(event.key==='Enter') executeVerification()">
+        </div>
+      </div>
+
+      <!-- Sección Manual -->
+      <div id="verifyManualSection" style="display: none;">
+        <div class="verify-input-group">
+          <label for="verifyManualInput">Números a verificar (separados por coma o espacio):</label>
+          <input type="text" id="verifyManualInput" placeholder="Ej: 05, 14, 28, 59, 87" onkeydown="if(event.key==='Enter') executeVerification()">
+        </div>
+      </div>
+
+      <button class="btn-execute-verify" onclick="executeVerification()">
+        Comprobar Jugada
+      </button>
+
+      <!-- Resultados del veredicto -->
+      <div class="verify-result-box" id="verifyResultBox"></div>
+    </div>
+  </div>
+
+  <!-- ===================== MODAL DE CONFIRMACIÓN DE REINICIO ===================== -->
+  <div class="modal-backdrop" id="resetConfirmModal">
+    <div class="verify-modal-card" style="max-width: 450px; text-align: center;">
+      <div style="font-size: 3.5rem; margin-bottom: 10px;">⚠️</div>
+      <h2 style="font-family: 'Outfit', sans-serif; font-size: 1.6rem; color: var(--danger); margin-bottom: 10px;">¿Reiniciar Partida?</h2>
+      <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 22px; line-height: 1.5;" id="resetConfirmMessage">
+        Todas las bolillas extraídas volverán al bolillero y el tablero se vaciará.
+      </p>
+      <div style="display: flex; gap: 12px; justify-content: center;">
+        <button class="btn-secondary" style="padding: 12px 24px; font-size: 1rem;" onclick="window.bolilleroApp?.closeResetModal()">
+          Cancelar
+        </button>
+        <button class="btn-header" style="background: linear-gradient(135deg, var(--danger), #be123c); color: #fff; padding: 12px 24px; font-size: 1rem; border-color: transparent;" onclick="window.bolilleroApp?.executeConfirmedReset()">
+          🔄 Sí, Reiniciar Todo
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== PANEL LATERAL DE AJUSTES ===================== -->
+  <div class="drawer-backdrop" id="settingsDrawerBackdrop" onclick="toggleSettingsDrawer()">
+    <div class="settings-drawer" onclick="event.stopPropagation()">
+      <div class="drawer-header">
+        <h3>⚙️ Ajustes del Sistema</h3>
+        <button class="btn-close-modal" onclick="toggleSettingsDrawer()">&times;</button>
+      </div>
+
+      <!-- Ajustes de Voz -->
+      <div class="setting-group">
+        <div class="setting-group-title">🎙️ Canto de Bolillas (Voz)</div>
+        <div class="setting-row">
+          <label for="voiceToggleCheck">Activar Voz</label>
+          <input type="checkbox" id="voiceToggleCheck" checked onchange="window.voiceEngine?.toggle(this.checked)">
+        </div>
+        <div class="setting-row">
+          <label for="voiceSelect">Voz del Sistema</label>
+          <select id="voiceSelect" title="Seleccionar voz" onchange="window.voiceEngine?.setVoice(this.value)"></select>
+        </div>
+        <div class="setting-row">
+          <label for="voiceStyleSelect">Estilo de Canto</label>
+          <select id="voiceStyleSelect" title="Seleccionar estilo de canto" onchange="window.voiceEngine?.setStyle(this.value)">
+            <option value="bingo" selected>🇦🇷 Tradicional Argentino (Sueños y apodos)</option>
+            <option value="dramatic">Dramático (¡Y el número es...!)</option>
+            <option value="simple">Simple (Solo el número)</option>
+          </select>
+        </div>
+        <div class="setting-row">
+          <label for="voiceSpeedRange">Velocidad</label>
+          <input type="range" id="voiceSpeedRange" min="0.6" max="1.4" step="0.1" value="1.0" oninput="window.voiceEngine?.setRate(this.value)">
+        </div>
+        <div class="setting-row">
+          <label for="voicePitchRange">Tono</label>
+          <input type="range" id="voicePitchRange" min="0.6" max="1.5" step="0.1" value="1.1" oninput="window.voiceEngine?.setPitch(this.value)">
+        </div>
+      </div>
+
+      <!-- Ajustes de Sonido -->
+      <div class="setting-group">
+        <div class="setting-group-title">🔊 Efectos de Sonido</div>
+        <div class="setting-row">
+          <label for="soundEffectsCheck">Sonidos de Sorteo</label>
+          <input type="checkbox" id="soundEffectsCheck" checked onchange="window.soundEngine?.toggleSound(this.checked)">
+        </div>
+        <div class="setting-row">
+          <label for="soundVolumeRange">Volumen</label>
+          <input type="range" id="soundVolumeRange" min="0" max="1" step="0.1" value="0.8" oninput="window.soundEngine?.setVolume(this.value)">
+        </div>
+      </div>
+
+      <!-- Apariencia -->
+      <div class="setting-group">
+        <div class="setting-group-title">🎨 Apariencia</div>
+        <div class="setting-row">
+          <label>Tema de Interfaz</label>
+          <button class="btn-header" onclick="toggleThemeMode()">🌓 Cambiar Claro / Oscuro</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== MODAL DE CÓDIGO QR PARA CELULAR ===================== -->
+  <div class="modal-backdrop" id="qrModalBackdrop">
+    <div class="verify-modal-card" style="max-width: 440px; text-align: center; padding: 26px 22px;">
+      <div style="font-size: 2.8rem; margin-bottom: 8px;">📱</div>
+      <h2 style="font-family: 'Outfit', sans-serif; font-size: 1.5rem; margin-bottom: 6px; color: var(--accent);">
+        Control Remoto en tu Celular
+      </h2>
+      <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 16px; line-height: 1.4;">
+        Conectá tu teléfono al <strong>mismo Wi-Fi</strong> y escaneá el código QR con la cámara:
+      </p>
+
+      <div style="background: #ffffff; padding: 14px; border-radius: 12px; display: inline-block; box-shadow: 0 10px 25px rgba(0,0,0,0.5); margin-bottom: 14px;">
+        <div id="qrcodeContainer" style="width: 200px; height: 200px; display: flex; align-items: center; justify-content: center;"></div>
+      </div>
+
+      <div style="background: rgba(255,255,255,0.06); padding: 10px 14px; border-radius: 8px; border: 1px solid var(--panel-border); margin-bottom: 18px; word-break: break-all;">
+        <span style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 2px;">O abrí este enlace en el navegador del celular:</span>
+        <a id="qrUrlLink" href="#" target="_blank" style="color: var(--primary); font-weight: 700; font-size: 0.95rem; text-decoration: none;">Cargando enlace...</a>
+      </div>
+
+      <button class="btn-secondary" style="width: 100%; padding: 12px;" onclick="closeQrModal()">
+        Cerrar
+      </button>
+    </div>
+  </div>
+
+  <!-- ===================== TOAST DE RECUPERACIÓN ===================== -->
+  <div class="toast-recovery" id="recoveryToast">
+    <h4>💾 Sesión Guardada</h4>
+    <p>Se detectó un sorteo previo en curso. ¿Deseas reanudar las bolillas extraídas?</p>
+    <div class="toast-btn-group">
+      <button class="toast-btn confirm" onclick="window.bolilleroApp?.restoreSession()">Reanudar</button>
+      <button class="toast-btn discard" onclick="window.bolilleroApp?.discardSession()">Descartar</button>
+    </div>
+  </div>
+
+  <!-- Contenedor de Confeti -->
+  <div class="confetti-container" id="confettiContainer"></div>
+
+  <!-- ===================== MODAL ACTA NOTARIAL AJALAR ===================== -->
+  <div class="acta-modal-backdrop" id="actaModalBackdrop">
+    <div class="acta-modal-card">
+      <div class="acta-header-screen">
+        <h2>📜 Acta Notarial de Fiscalización Oficial AJALAR</h2>
+        <button class="btn-close-modal" onclick="closeActaModal()">&times;</button>
+      </div>
+
+      <div class="acta-body-scroll" id="actaDocumentSheet">
+        <div class="acta-document-sheet">
+          <!-- Membrete Oficial AJALAR -->
+          <div class="acta-gov-header">
+            <div class="gov-title">Gobierno de la Provincia de La Rioja</div>
+            <div class="ajalar-main-title">ADMINISTRACIÓN PROVINCIAL DE JUEGOS DE AZAR (AJALAR)</div>
+            <div class="acta-sub">ACTA OFICIAL DE FISCALIZACIÓN Y AUDITORÍA NOTARIAL DE SORTEO</div>
+          </div>
+
+          <!-- Metadatos Notariales del Sorteo -->
+          <div class="acta-meta-grid">
+            <div class="acta-field-row">
+              <label>Entidad Organizadora:</label>
+              <input type="text" id="actaEntityInput" value="Club Social y Deportivo">
+            </div>
+            <div class="acta-field-row">
+              <label>Autorización AJALAR:</label>
+              <input type="text" id="actaResInput" value="Res. AJALAR N° 458/2026">
+            </div>
+            <div class="acta-field-row">
+              <label>Escribano Público:</label>
+              <input type="text" id="actaNotaryInput" value="" placeholder="Nombre y Apellido - Matrícula N°">
+            </div>
+            <div class="acta-field-row">
+              <label>Fiscalizador / Veedor AJALAR:</label>
+              <input type="text" id="actaAuditorInput" value="" placeholder="Nombre del Inspector / Veedor">
+            </div>
+            <div class="acta-field-row">
+              <label>Lugar de Realización:</label>
+              <input type="text" id="actaLocationInput" value="La Rioja, Capital">
+            </div>
+            <div class="acta-field-row">
+              <label>Fecha y Horario:</label>
+              <input type="text" id="actaDateTimeInput" value="">
+            </div>
+          </div>
+
+          <!-- Premios Asentados -->
+          <div class="acta-winners-box">
+            <h4>🏆 CONSTANCIA DE PREMIOS OFICIALES VERIFICADOS</h4>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 6px;">
+              <div>
+                <strong>PREMIO LÍNEA:</strong>
+                <div id="actaWinnerLine" style="color: #1e3a8a; font-weight: 700;">Pendiente de registro</div>
+              </div>
+              <div>
+                <strong>PREMIO BINGO (CARTÓN LLENO):</strong>
+                <div id="actaWinnerBingo" style="color: #1e3a8a; font-weight: 700;">Pendiente de registro</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Secuencia Cronológica de Bolillas Extraídas -->
+          <div class="acta-balls-table-container">
+            <h4>📋 SECUENCIA CRONOLÓGICA DE BOLILLAS EXTRAÍDAS (ORDEN DE SALIDA)</h4>
+            <div class="acta-balls-grid" id="actaBallsGrid">
+              <!-- Renderizado dinámico -->
+            </div>
+          </div>
+
+          <!-- Fe Notarial -->
+          <div class="acta-legal-cert" id="actaLegalText">
+            En la Ciudad de Todos los Santos de la Nueva Rioja, a los <span id="actaDay">__</span> días del mes de <span id="actaMonth">__________</span> de 2026, el Escribano Público actuante y el Veedor de la Administración Provincial de Juegos de Azar (AJALAR) dan fe de que el presente sorteo de Bingo de 90 Bolillas se desarrolló con absoluta regularidad, mediante el sistema digital certificado de extracción aleatoria no predictiva (Web Crypto API / IRAM Referencial 19), habiendo fiscalizado la totalidad de las extracciones y los cartones ganadores correspondientes.
+          </div>
+
+          <!-- Líneas de Firma -->
+          <div class="acta-signatures-row">
+            <div class="signature-block">
+              <div class="signature-line-doc"></div>
+              <strong>ESCRIBANO PÚBLICO</strong>
+              <span>Registro Notarial</span>
+            </div>
+            <div class="signature-block">
+              <div class="signature-line-doc"></div>
+              <strong>AUTORIDAD ORGANIZADORA</strong>
+              <span>Entidad Responsable</span>
+            </div>
+            <div class="signature-block">
+              <div class="signature-line-doc"></div>
+              <strong>VEEDOR / FISCALIZADOR</strong>
+              <span>AJALAR La Rioja</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="acta-footer-actions">
+        <button class="btn-action" style="background: rgba(0,0,0,0.1); border:none; cursor:pointer;" onclick="closeActaModal()">
+          Cerrar
+        </button>
+        <button class="btn-action generate" onclick="printActaDocument()">
+          🖨️ Imprimir Acta Oficial (A4)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== SCRIPTS ===================== -->
+  <script src="js/audio.js"></script>
+  <script src="js/voz.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/remote-client.js"></script>
+  <script src="js/qrcode.min.js"></script>
+  <script src="js/cartones.js"></script>
+  <script src="js/verificador.js"></script>
+  <script src="js/bolillero.js"></script>
+
+  <script>
+    function toggleSettingsDrawer() {
+      const drawer = document.getElementById('settingsDrawerBackdrop');
+      drawer?.classList.toggle('active');
+    }
+
+    function toggleThemeMode() {
+      document.body.classList.toggle('light-theme');
+      const isLight = document.body.classList.contains('light-theme');
+      try {
+        localStorage.setItem('bingo_theme', isLight ? 'light' : 'dark');
+      } catch (e) {}
+    }
+
+    // Restaurar tema guardado
+    (function initSavedTheme() {
+      try {
+        const saved = localStorage.getItem('bingo_theme');
+        if (saved === 'light') {
+          document.body.classList.add('light-theme');
+        }
+      } catch (e) {}
+    })();
+
+    let qrCodeInstance = null;
+
+    async function openQrModal() {
+      const modal = document.getElementById('qrModalBackdrop');
+      if (modal) modal.classList.add('active');
+
+      let targetUrl = `${window.location.origin}/remoto.html`;
+
+      try {
+        const resp = await fetch('/api/info');
+        if (resp.ok) {
+          const data = await resp.json();
+          if (data && data.remoteUrl) {
+            targetUrl = data.remoteUrl;
+          }
+        }
+      } catch (e) {
+        console.log("No conectado al servidor HTTP local, usando URL actual");
+      }
+
+      const linkEl = document.getElementById('qrUrlLink');
+      if (linkEl) {
+        linkEl.href = targetUrl;
+        linkEl.textContent = targetUrl;
+      }
+
+      const qrContainer = document.getElementById('qrcodeContainer');
+      if (qrContainer) {
+        qrContainer.innerHTML = '';
+        if (typeof QRCode !== 'undefined') {
+          qrCodeInstance = new QRCode(qrContainer, {
+            text: targetUrl,
+            width: 200,
+            height: 200,
+            colorDark: '#0f172a',
+            colorLight: '#ffffff',
+            correctLevel: QRCode.CorrectLevel.M
+          });
+        }
+      }
+    }
+
+    function closeQrModal() {
+      const modal = document.getElementById('qrModalBackdrop');
+      if (modal) modal.classList.remove('active');
+    }
+
+    function executeVerification() {
+      const called = window.bolilleroApp ? window.bolilleroApp.called : [];
+      window.bingoVerifier?.executeCheck(called);
+    }
+
+    // ===================== CONTROL DEL ACTA NOTARIAL =====================
+    function openActaModal() {
+      const modal = document.getElementById('actaModalBackdrop');
+      if (!modal) return;
+
+      const data = window.bolilleroApp ? window.bolilleroApp.getActaData() : null;
+      const now = new Date();
+
+      const dateStr = now.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      const timeStr = now.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
+      const dateField = document.getElementById('actaDateTimeInput');
+      if (dateField) dateField.value = `${dateStr} a las ${timeStr} hs`;
+
+      const dayEl = document.getElementById('actaDay');
+      const monthEl = document.getElementById('actaMonth');
+      if (dayEl) dayEl.textContent = now.getDate();
+      if (monthEl) {
+        const months = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+        monthEl.textContent = months[now.getMonth()];
+      }
+
+      const lineBox = document.getElementById('actaWinnerLine');
+      const bingoBox = document.getElementById('actaWinnerBingo');
+      const winners = data?.officialWinners || {};
+
+      if (lineBox) {
+        if (winners.line) {
+          lineBox.innerHTML = `✅ Cartón <strong>${winners.line.cardSerial}</strong> (Extraída bolilla <strong>#${String(winners.line.ballDrawn).padStart(2, '0')}</strong> en orden ${winners.line.ballIndex}° - ${winners.line.time})`;
+        } else {
+          lineBox.innerHTML = `<em>Aún no registrado en verificador</em>`;
+        }
+      }
+
+      if (bingoBox) {
+        if (winners.bingo) {
+          bingoBox.innerHTML = `🏆 Cartón <strong>${winners.bingo.cardSerial}</strong> (Extraída bolilla <strong>#${String(winners.bingo.ballDrawn).padStart(2, '0')}</strong> en orden ${winners.bingo.ballIndex}° - ${winners.bingo.time})`;
+        } else {
+          bingoBox.innerHTML = `<em>Aún no registrado en verificador</em>`;
+        }
+      }
+
+      const grid = document.getElementById('actaBallsGrid');
+      if (grid) {
+        grid.innerHTML = '';
+        const logs = data?.auditLog || [];
+        if (logs.length === 0) {
+          grid.innerHTML = '<span style="color: #64748b;">No se han extraído bolillas en este sorteo todavía.</span>';
+        } else {
+          logs.forEach(item => {
+            const chip = document.createElement('div');
+            chip.className = 'acta-ball-chip';
+            chip.innerHTML = `<span>#${String(item.order).padStart(2, '0')}:</span> <strong>${String(item.ball).padStart(2, '0')}</strong> <small>(${item.time})</small>`;
+            grid.appendChild(chip);
+          });
+        }
+      }
+
+      modal.classList.add('active');
+    }
+
+    function closeActaModal() {
+      const modal = document.getElementById('actaModalBackdrop');
+      if (modal) modal.classList.remove('active');
+    }
+
+    function printActaDocument() {
+      document.body.classList.add('printing-acta');
+      setTimeout(() => {
+        window.print();
+        setTimeout(() => {
+          document.body.classList.remove('printing-acta');
+        }, 300);
+      }, 150);
+    }
+  </script>
+</body>
+</html>

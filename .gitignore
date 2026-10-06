@@ -1,0 +1,10 @@
+# Ejecutables de terceros
+*.exe
+
+# Sistema y entornos
+.DS_Store
+Thumbs.db
+*.log
+.qodo/
+.vscode/
+.idea/

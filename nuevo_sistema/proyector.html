@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎱 Bolillero Digital - Pantalla Gigante Proyector</title>
+  <link rel="stylesheet" href="css/main.css">
+  <style>
+    body {
+      background: radial-gradient(circle at 50% 30%, #1e1b4b 0%, #0b0f19 80%);
+      padding: 20px 40px;
+      overflow: hidden;
+      justify-content: space-between;
+      height: 100vh;
+    }
+
+    .proyector-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 12px;
+    }
+
+    .proyector-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 2.2rem;
+      font-weight: 900;
+      color: var(--accent);
+      letter-spacing: -0.02em;
+      text-shadow: 0 0 25px var(--accent-glow);
+    }
+
+    .proyector-layout {
+      display: grid;
+      grid-template-columns: 420px 1fr;
+      gap: 40px;
+      align-items: center;
+      flex: 1;
+      width: 100%;
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+
+    .giant-ball-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .giant-ball-sphere {
+      width: 320px;
+      height: 320px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Outfit', sans-serif;
+      font-size: 10rem;
+      font-weight: 900;
+      color: #ffffff;
+      text-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+      background: radial-gradient(circle at 35% 30%, #ff8a8a 0%, #dc2626 50%, #991b1b 90%);
+      box-shadow: 0 25px 60px rgba(220, 38, 38, 0.55),
+                  inset 0 -15px 30px rgba(0, 0, 0, 0.5),
+                  inset 0 12px 25px rgba(255, 255, 255, 0.6);
+      border: 8px solid rgba(255, 255, 255, 0.25);
+      transition: all 0.4s;
+    }
+
+    .giant-ball-sphere.pop {
+      animation: giantPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes giantPop {
+      0% { transform: scale(0.3); opacity: 0; }
+      70% { transform: scale(1.15); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .giant-ball-sphere.empty {
+      background: radial-gradient(circle at 35% 30%, #475569 0%, #1e293b 60%, #0f172a 100%);
+      color: #64748b;
+      font-size: 6rem;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+    }
+
+    .giant-sub-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-top: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    /* Tablero para proyector */
+    .proyector-board {
+      background: rgba(18, 24, 38, 0.85);
+      border: 2px solid var(--panel-border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    }
+
+    .proyector-board .main-board-grid {
+      gap: 8px;
+    }
+
+    .proyector-board .board-cell {
+      font-size: 1.25rem;
+      font-weight: 800;
+      border-width: 2px;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .proyector-board .board-cell.called {
+      background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+      color: #fff;
+      box-shadow: 0 0 15px var(--success-glow);
+    }
+
+    .proyector-board .board-cell.last-called {
+      background: linear-gradient(135deg, var(--danger) 0%, #be123c 100%);
+      box-shadow: 0 0 25px var(--danger-glow);
+      animation: cellPulse 1s infinite ease-in-out;
+    }
+
+    /* Banner de Victoria Superpuesto */
+    .overlay-win-banner {
+      position: fixed;
+      inset: 0;
+      background: rgba(11, 15, 25, 0.92);
+      backdrop-filter: blur(12px);
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.4s ease;
+    }
+
+    .overlay-win-banner.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .overlay-win-card {
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+      border: 3px solid var(--accent);
+      border-radius: var(--radius-lg);
+      padding: 50px 70px;
+      text-align: center;
+      box-shadow: 0 0 80px var(--accent-glow);
+      transform: scale(0.8);
+      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .overlay-win-banner.active .overlay-win-card {
+      transform: scale(1);
+    }
+
+    .overlay-win-card h2 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 3.5rem;
+      font-weight: 900;
+      color: var(--accent);
+      margin-bottom: 15px;
+      text-shadow: 0 0 30px var(--accent-glow);
+    }
+
+    .overlay-win-card p {
+      font-size: 1.6rem;
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="proyector-header">
+    <div style="display: flex; align-items: center; gap: 20px;">
+      <div class="proyector-title">🎱 SORTEO OFICIAL EN VIVO</div>
+      <button class="btn-header" style="font-size: 0.85rem; padding: 6px 14px;" onclick="openQrModal()" title="Escanear con celular para controlar">
+        📱 Control Celular (QR)
+      </button>
+    </div>
+    
+    <!-- Últimas 5 bolillas -->
+    <div class="last-five-bar" style="margin: 0;">
+      <span class="last-five-label">Últimas:</span>
+      <div class="last-five-list">
+        <div class="last-ball-item" id="p-last-1">--</div>
+        <div class="last-ball-item" id="p-last-2">--</div>
+        <div class="last-ball-item" id="p-last-3">--</div>
+        <div class="last-ball-item" id="p-last-4">--</div>
+        <div class="last-ball-item" id="p-last-5">--</div>
+      </div>
+    </div>
+  </header>
+
+  <main class="proyector-layout">
+    <!-- Bolilla Gigante -->
+    <div class="giant-ball-card">
+      <div class="giant-ball-sphere empty" id="giantBallDisplay">
+        <span id="giantBallText">??</span>
+      </div>
+      <div class="giant-sub-title">Última Bolilla Extraída</div>
+    </div>
+
+    <!-- Tablero General del Proyector -->
+    <div class="proyector-board">
+      <div class="main-board-grid" id="proyectorBoardGrid"></div>
+    </div>
+  </main>
+
+  <!-- Banner de Victoria en Pantalla Gigante -->
+  <div class="overlay-win-banner" id="overlayWinBanner">
+    <div class="overlay-win-card">
+      <div style="font-size: 5rem; margin-bottom: 10px;" id="winIcon">🏆</div>
+      <h2 id="winTitle">¡BINGO CONFIRMADO!</h2>
+      <p id="winDesc">Cartón #042 ha sido verificado como ganador</p>
+      <button class="btn-header accent" style="margin-top: 30px; font-size: 1.2rem; padding: 12px 30px;" onclick="closeWinOverlay()">Continuar Sorteo</button>
+    </div>
+  </div>
+
+  <!-- Modal de Código QR en el Proyector -->
+  <div class="modal-backdrop" id="qrModalBackdrop">
+    <div class="verify-modal-card" style="max-width: 440px; text-align: center; padding: 26px 22px;">
+      <div style="font-size: 2.8rem; margin-bottom: 8px;">📱</div>
+      <h2 style="font-family: 'Outfit', sans-serif; font-size: 1.5rem; margin-bottom: 6px; color: var(--accent);">
+        Control Remoto en el Celular
+      </h2>
+      <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 16px; line-height: 1.4;">
+        Conectá tu teléfono al <strong>mismo Wi-Fi</strong> y escaneá el código QR con la cámara:
+      </p>
+
+      <div style="background: #ffffff; padding: 14px; border-radius: 12px; display: inline-block; box-shadow: 0 10px 25px rgba(0,0,0,0.5); margin-bottom: 14px;">
+        <div id="qrcodeContainer" style="width: 200px; height: 200px; display: flex; align-items: center; justify-content: center;"></div>
+      </div>
+
+      <div style="background: rgba(255,255,255,0.06); padding: 10px 14px; border-radius: 8px; border: 1px solid var(--panel-border); margin-bottom: 18px; word-break: break-all;">
+        <span style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 2px;">Enlace para el navegador móvil:</span>
+        <a id="qrUrlLink" href="#" target="_blank" style="color: var(--primary); font-weight: 700; font-size: 0.95rem; text-decoration: none;">Cargando enlace...</a>
+      </div>
+
+      <button class="btn-secondary" style="width: 100%; padding: 12px;" onclick="closeQrModal()">
+        Cerrar
+      </button>
+    </div>
+  </div>
+
+  <div class="confetti-container" id="confettiContainer"></div>
+
+  <script src="js/storage.js"></script>
+  <script src="js/remote-client.js"></script>
+  <script src="js/qrcode.min.js"></script>
+  <script>
+    let TOTAL_NUMBERS = 90;
+
+    // Crear grilla del proyector (90 bolillas: 1 al 90)
+    function createProyectorBoard(total = 90) {
+      TOTAL_NUMBERS = total;
+      const grid = document.getElementById('proyectorBoardGrid');
+      grid.innerHTML = '';
+      const start = (TOTAL_NUMBERS === 90) ? 1 : 0;
+      const end = (TOTAL_NUMBERS === 90) ? 90 : (TOTAL_NUMBERS - 1);
+
+      for (let i = start; i <= end; i++) {
+        const d = document.createElement('div');
+        d.className = 'board-cell';
+        d.id = `p-cell-${i}`;
+        d.textContent = String(i).padStart(2, '0');
+        grid.appendChild(d);
+      }
+    }
+
+    function syncState(state) {
+      if (!state) return;
+      const called = state.called || [];
+      const lastFive = state.lastFive || [];
+      const lastDrawn = state.lastDrawn !== undefined && state.lastDrawn !== null 
+        ? state.lastDrawn 
+        : (called.length > 0 ? called[called.length - 1] : null);
+
+      if (state.totalNumbers && state.totalNumbers !== TOTAL_NUMBERS) {
+        createProyectorBoard(state.totalNumbers);
+      }
+
+      // Actualizar Bolilla Gigante
+      const ballSphere = document.getElementById('giantBallDisplay');
+      const ballText = document.getElementById('giantBallText');
+      if (lastDrawn !== null && lastDrawn !== undefined) {
+        ballSphere.className = 'giant-ball-sphere pop';
+        ballText.textContent = String(lastDrawn).padStart(2, '0');
+      } else {
+        ballSphere.className = 'giant-ball-sphere empty';
+        ballText.textContent = '??';
+      }
+
+      // Actualizar Tablero
+      document.querySelectorAll('.proyector-board .board-cell').forEach(c => c.classList.remove('called', 'last-called'));
+      called.forEach((n, idx) => {
+        const cell = document.getElementById(`p-cell-${n}`);
+        if (cell) {
+          cell.classList.add('called');
+          if (idx === called.length - 1) cell.classList.add('last-called');
+        }
+      });
+
+      // Actualizar Últimas 5
+      for (let i = 1; i <= 5; i++) {
+        const el = document.getElementById(`p-last-${i}`);
+        if (el) {
+          if (i <= lastFive.length) {
+            el.textContent = String(lastFive[i - 1]).padStart(2, '0');
+            el.classList.add('active');
+          } else {
+            el.textContent = '--';
+            el.classList.remove('active');
+          }
+        }
+      }
+    }
+
+    function showWinOverlay(type, card) {
+      const overlay = document.getElementById('overlayWinBanner');
+      const title = document.getElementById('winTitle');
+      const desc = document.getElementById('winDesc');
+      const icon = document.getElementById('winIcon');
+
+      const isBingo = type === 'BINGO';
+      icon.textContent = isBingo ? '🏆' : '🎉';
+      title.textContent = isBingo ? '¡BINGO CONFIRMADO!' : '¡LÍNEA CONFIRMADA!';
+      desc.textContent = `Cartón ${card} ha sido verificado como ganador`;
+
+      overlay.classList.add('active');
+    }
+
+    function closeWinOverlay() {
+      document.getElementById('overlayWinBanner').classList.remove('active');
+    }
+
+    // Modal QR para el Proyector
+    let qrInstance = null;
+    async function openQrModal() {
+      const modal = document.getElementById('qrModalBackdrop');
+      if (modal) modal.classList.add('active');
+
+      let targetUrl = `${window.location.origin}/remoto.html`;
+
+      try {
+        const resp = await fetch('/api/info');
+        if (resp.ok) {
+          const data = await resp.json();
+          if (data && data.remoteUrl) {
+            targetUrl = data.remoteUrl;
+          }
+        }
+      } catch (e) {}
+
+      const linkEl = document.getElementById('qrUrlLink');
+      if (linkEl) {
+        linkEl.href = targetUrl;
+        linkEl.textContent = targetUrl;
+      }
+
+      const qrContainer = document.getElementById('qrcodeContainer');
+      if (qrContainer) {
+        qrContainer.innerHTML = '';
+        if (typeof QRCode !== 'undefined') {
+          qrInstance = new QRCode(qrContainer, {
+            text: targetUrl,
+            width: 200,
+            height: 200,
+            colorDark: '#0f172a',
+            colorLight: '#ffffff',
+            correctLevel: QRCode.CorrectLevel.M
+          });
+        }
+      }
+    }
+
+    function closeQrModal() {
+      const modal = document.getElementById('qrModalBackdrop');
+      if (modal) modal.classList.remove('active');
+    }
+
+    // Inicializar cuadrícula oficial 90 bolillas
+    createProyectorBoard(90);
+
+    // Escuchar eventos locales BroadcastChannel
+    window.storageManager?.onBroadcast((data) => {
+      if (data.type === 'DRAW_BALL') {
+        syncState(data.payload);
+      } else if (data.type === 'RESET_GAME') {
+        syncState({ called: [], lastFive: [], lastDrawn: null });
+        closeWinOverlay();
+      } else if (data.type === 'VERIFY_WIN') {
+        showWinOverlay(data.payload.type, data.payload.card);
+      }
+    });
+
+    // Escuchar eventos en red WebSocket (para Smart TV o PC remota)
+    window.remoteClient?.onMessage((msg) => {
+      if (!msg) return;
+      if (msg.type === 'INIT_STATE' || msg.type === 'STATE_SYNC' || msg.type === 'DRAW_BALL') {
+        syncState(msg.payload);
+      } else if (msg.type === 'RESET_GAME') {
+        syncState({ called: [], lastFive: [], lastDrawn: null });
+        closeWinOverlay();
+      } else if (msg.type === 'VERIFY_WIN') {
+        showWinOverlay(msg.payload.type, msg.payload.card);
+      }
+    });
+
+    // Pedir estado inicial
+    window.storageManager?.broadcast('REQUEST_STATE');
+
+    // Intentar leer estado guardado si ya existe
+    const saved = window.storageManager?.getGameState();
+    if (saved && saved.called) {
+      syncState({
+        called: saved.called,
+        lastFive: saved.lastFive,
+        lastDrawn: saved.called.length > 0 ? saved.called[saved.called.length - 1] : null
+      });
+    }
+  </script>
+</body>
+</html>
